@@ -469,6 +469,7 @@ enum {
       SCOPE_EQMAC,
       SCOPE_GCUSBST4,
       SCOPE_INDI,
+      SCOPE_ZTSH,
     END_SCOPES,
     BEGIN_STEPGUIDERS,
       AO_NONE,

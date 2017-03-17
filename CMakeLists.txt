@@ -301,6 +301,7 @@ set(scopes_SRC
   ${phd_src_dir}/scope_voyager.h
   ${phd_src_dir}/scope_INDI.h
   ${phd_src_dir}/scope_INDI.cpp
+  ${phd_src_dir}/scope_ztsh.cpp
   ${phd_src_dir}/scopes.h
   ${phd_src_dir}/stepguider_simulator.h
   ${phd_src_dir}/stepguider_sxao.cpp
@@ -495,6 +496,9 @@ if(UNIX AND NOT APPLE)
       ${phd_src_dir}/indi_gui.cpp
       ${phd_src_dir}/indi_gui.h
       
+      ${phd_src_dir}/config_CRAO.cpp
+      ${phd_src_dir}/config_CRAO_motors.cpp
+
       ${phd_src_dir}/wxled.cpp
       ${phd_src_dir}/wxled.h
      )
@@ -692,7 +696,7 @@ elseif(UNIX)
    ${guiding_SRC}
    ${phd2_SRC}
    )
-  target_link_libraries(phd2 X11)
+  target_link_libraries(phd2 X11 modbus)
 
   set_target_properties(
     phd2 

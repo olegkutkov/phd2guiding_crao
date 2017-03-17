@@ -1,11 +1,13 @@
 /*
- *  scopes.h
+ *  scope_INDI.cpp
  *  PHD Guiding
  *
- *  Created by Craig Stark.
- *  Copyright (c) 2006-2010 Craig Stark.
+ *  Module for ZTSH autogude system, Crimean astrophysical observatory
  *  All rights reserved.
  *
+ *  Copyright (c) 2017 Oleg Kutkov
+ *  All rights reserved.
+ * 
  *  This source code is distributed under the following "BSD" license
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -31,51 +33,30 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
+#ifdef  GUIDE_ZTSH
 
-#ifndef SCOPES_H_INCLUDED
-#define SCOPES_H_INCLUDED
+#include <vector>
+#include <modbus/modbus.h>
 
-#if defined (__WINDOWS__)
+class ScopeZTSH : public Scope {
+public:
+	ScopeZTSH();
+	~ScopeZTSH();
 
-    #define GUIDE_ONCAMERA
-    #define GUIDE_ONSTEPGUIDER
-    #define GUIDE_ASCOM
-    #define GUIDE_GPUSB
-    #define GUIDE_GPINT
-    #define GUIDE_ZTSH
+	bool     Connect(void);
+    bool     Disconnect(void);
+    bool     HasSetupDialog(void) const;
+    void     SetupDialog();
 
-#elif defined (__APPLE__)
+    MOVE_RESULT Guide(GUIDE_DIRECTION direction, int duration);
 
-    #define GUIDE_ONCAMERA
-    #define GUIDE_ONSTEPGUIDER
-    #define GUIDE_GPUSB
-    #define GUIDE_GCUSBST4
-    #define GUIDE_EQUINOX
-    //#define GUIDE_VOYAGER
-    //#define GUIDE_NEB
-    #define GUIDE_EQMAC
+    bool   CanPulseGuide();
 
-#elif defined (__linux__)
+private:
+	modbus_t *ctx;
 
-    #define GUIDE_ONCAMERA
-    #define GUIDE_ONSTEPGUIDER
-    #define GUIDE_INDI
-    #define GUIDE_ZTSH
+	void EnumerateSerialDevices(std::vector<wxString>& devices);
+};
 
-#endif // WINDOWS/APPLE/LINUX
+#endif
 
-#include "scope.h"
-#include "scope_oncamera.h"
-#include "scope_onstepguider.h"
-#include "scope_ascom.h"
-#include "scope_gpusb.h"
-#include "scope_gpint.h"
-#include "scope_voyager.h"
-#include "scope_equinox.h"
-#include "scope_eqmac.h"
-#include "scope_GC_USBST4.h"
-#include "scope_INDI.h"
-#include "scope_manual_pointing.h"
-#include "scope_ztsh.h"
-
-#endif /* SCOPES_H_INCLUDED */
