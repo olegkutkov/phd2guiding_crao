@@ -301,8 +301,8 @@ set(scopes_SRC
   ${phd_src_dir}/scope_voyager.h
   ${phd_src_dir}/scope_INDI.h
   ${phd_src_dir}/scope_INDI.cpp
-  ${phd_src_dir}/scope_ztsh.cpp
   ${phd_src_dir}/scopes.h
+  ${phd_src_dir}/scope_ztsh.cpp
   ${phd_src_dir}/stepguider_simulator.h
   ${phd_src_dir}/stepguider_sxao.cpp
   ${phd_src_dir}/stepguider_sxao.h
@@ -495,10 +495,9 @@ if(UNIX AND NOT APPLE)
       
       ${phd_src_dir}/indi_gui.cpp
       ${phd_src_dir}/indi_gui.h
-      
-      ${phd_src_dir}/config_CRAO.cpp
-      ${phd_src_dir}/config_CRAO_motors.cpp
 
+      ${phd_src_dir}/config_ZTSH.cpp
+      
       ${phd_src_dir}/wxled.cpp
       ${phd_src_dir}/wxled.h
      )

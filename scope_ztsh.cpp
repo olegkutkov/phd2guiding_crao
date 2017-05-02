@@ -32,7 +32,7 @@
  */
 
 #include "phd.h"
-#include "config_CRAO.h"
+#include "config_ZTSH.h"
 
 #include <stdio.h>
 

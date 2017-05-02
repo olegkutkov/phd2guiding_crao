@@ -75,7 +75,7 @@
 #include "scope_eqmac.h"
 #include "scope_GC_USBST4.h"
 #include "scope_INDI.h"
-#include "scope_manual_pointing.h"
 #include "scope_ztsh.h"
+#include "scope_manual_pointing.h"
 
 #endif /* SCOPES_H_INCLUDED */

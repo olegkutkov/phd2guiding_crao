@@ -31,8 +31,8 @@
  *
  */
 
-#include "config_CRAO.h"
-#include "config_CRAO_motors.h"
+#include "config_ZTSH.h"
+//#include "config_CRAO_motors.h"
 
 #define MOTCFG 201
 
@@ -204,15 +204,15 @@ void CraoConfig::OnMotCfgButton(wxCommandEvent& evt)
 		return;
 	}
 
-	CraoConfigMotors *mcfgDlg = new CraoConfigMotors(wxGetActiveWindow(), modbus_ctx);
+//	CraoConfigMotors *mcfgDlg = new CraoConfigMotors(wxGetActiveWindow(), modbus_ctx);
 
-	if (mcfgDlg->ShowModal() == wxID_OK) {
+//	if (mcfgDlg->ShowModal() == wxID_OK) {
 		///
-	}
+//	}
 
-	mcfgDlg->Destroy();
+//	mcfgDlg->Destroy();
 
-	delete mcfgDlg;
+//	delete mcfgDlg;
 }
 
 void CraoConfig::SetConnectedState()
