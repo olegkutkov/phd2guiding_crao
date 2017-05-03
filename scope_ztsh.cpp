@@ -59,7 +59,7 @@ bool ScopeZTSH::Connect(void)
 {
 	bool connect_failed = false;
 
-	wxString device = pConfig->Profile.GetString("/crao/serial", _T(""));
+	wxString device = pConfig->Profile.GetString("/crao/ztsh/serial", _T(""));
 
 	if (device.IsEmpty()) {
 		wxMessageBox(_("Please select serial device in the mount configuration dialog"), _("Error"), wxOK | wxICON_ERROR);
@@ -72,14 +72,14 @@ bool ScopeZTSH::Connect(void)
 	device = wxString("\\\\.\\") + device;
 #endif
 
-	wxString parity = pConfig->Profile.GetString("/crao/parity", "n");
+	wxString parity = pConfig->Profile.GetString("/crao/ztsh/parity", "n");
 	parity = parity.Capitalize();
 
 	const char *parity_c = parity.mb_str();
 
-	int baud = pConfig->Profile.GetInt("/crao/baud", 9600);
-	int dbits = pConfig->Profile.GetInt("/crao/dbits", 8);
-	int sbits = pConfig->Profile.GetInt("/crao/sbits", 1);
+	int baud = pConfig->Profile.GetInt("/crao/ztsh/baud", 9600);
+	int dbits = pConfig->Profile.GetInt("/crao/ztsh/dbits", 8);
+	int sbits = pConfig->Profile.GetInt("/crao/ztsh/sbits", 1);
 
 	const char *device_c = device.mb_str();
 
@@ -90,7 +90,7 @@ bool ScopeZTSH::Connect(void)
 		return true;
 	}
 
-	int mbid = pConfig->Profile.GetInt("/crao/mbid", 10);
+	int mbid = pConfig->Profile.GetInt("/crao/ztsh/mbid", 10);
 
 	if (modbus_set_slave(ctx, mbid) != 0) {
 		wxMessageBox(_("Failed to set selected modbus slave id"), _("Error"), wxOK | wxICON_ERROR);
@@ -104,7 +104,7 @@ bool ScopeZTSH::Connect(void)
 		return true;
 	}
 
-	uint16_t hw_answ;
+/*	uint16_t hw_answ;
 
 	if (modbus_read_registers(ctx, 70, 1, &hw_answ) == -1) {
 		wxMessageBox(wxString("Failed to communicate with the Mount hardware, modbus error: ") + wxString(modbus_strerror(errno)), _("Error"), wxOK | wxICON_ERROR);
@@ -119,7 +119,7 @@ bool ScopeZTSH::Connect(void)
 		modbus_free(ctx);
 		return true;
 	}
-
+*/
 	Scope::Connect();
 
 	return connect_failed;
@@ -169,6 +169,8 @@ void ScopeZTSH::EnumerateSerialDevices(std::vector<wxString>& devices)
 		}
 
 		devices.push_back(devdir->d_name);
+
+		closedir(ttydevdir);
 	}
 
 	closedir(ttydir);
@@ -186,12 +188,14 @@ void ScopeZTSH::SetupDialog()
 		craoDlg->SetConnectedState();
 	}
 
-	craoDlg->curr_device = pConfig->Profile.GetString("/crao/serial", _T(""));
-	craoDlg->curr_baud = pConfig->Profile.GetInt("/crao/baud", 9600);
-	craoDlg->curr_dbits = pConfig->Profile.GetInt("/crao/dbits", 8);
-	craoDlg->curr_sbits = pConfig->Profile.GetInt("/crao/sbits", 1);
-	craoDlg->curr_parity = pConfig->Profile.GetString("/crao/parity", "none");
-	craoDlg->curr_mbid = pConfig->Profile.GetInt("/crao/mbid", 10);
+	craoDlg->curr_device = pConfig->Profile.GetString("/crao/ztsh/serial", _T(""));
+	craoDlg->curr_baud = pConfig->Profile.GetInt("/crao/ztsh/baud", 9600);
+	craoDlg->curr_dbits = pConfig->Profile.GetInt("/crao/ztsh/dbits", 8);
+	craoDlg->curr_sbits = pConfig->Profile.GetInt("/crao/ztsh/sbits", 1);
+	craoDlg->curr_parity = pConfig->Profile.GetString("/crao/ztsh/parity", "none");
+	craoDlg->curr_adm_mbid = pConfig->Profile.GetInt("/crao/ztsh/adm_mbid", 1);
+	craoDlg->curr_adm_ra_channel = pConfig->Profile.GetInt("/crao/ztsh/adm_ra_channel", 1);
+	craoDlg->curr_adm_dec_channel = pConfig->Profile.GetInt("/crao/ztsh/adm_dec_channel", 2);
 
 	EnumerateSerialDevices(craoDlg->tty_devices);
 
@@ -202,12 +206,14 @@ void ScopeZTSH::SetupDialog()
 		// if OK save the values to the current profile
 		craoDlg->SaveSettings();
 
-		pConfig->Profile.SetString("/crao/serial", craoDlg->curr_device);
-		pConfig->Profile.SetInt("/crao/baud", craoDlg->curr_baud);
-		pConfig->Profile.SetInt("/crao/dbits", craoDlg->curr_dbits);
-		pConfig->Profile.SetInt("/crao/sbits", craoDlg->curr_sbits);
-		pConfig->Profile.SetString("/crao/parity", craoDlg->curr_parity);
-		pConfig->Profile.SetInt("/crao/mbid", craoDlg->curr_mbid);
+		pConfig->Profile.SetString("/crao/ztsh/serial", craoDlg->curr_device);
+		pConfig->Profile.SetInt("/crao/ztsh/baud", craoDlg->curr_baud);
+		pConfig->Profile.SetInt("/crao/ztsh/dbits", craoDlg->curr_dbits);
+		pConfig->Profile.SetInt("/crao/ztsh/sbits", craoDlg->curr_sbits);
+		pConfig->Profile.SetString("/crao/ztsh/parity", craoDlg->curr_parity);
+		pConfig->Profile.SetInt("/crao/ztsh/adm_mbid", craoDlg->curr_adm_mbid);
+		pConfig->Profile.SetInt("/crao/ztsh/adm_ra_channel", craoDlg->curr_adm_ra_channel);
+		pConfig->Profile.SetInt("/crao/ztsh/adm_dec_channel", craoDlg->curr_adm_dec_channel);
     }
 
 	craoDlg->Destroy();

@@ -40,7 +40,7 @@
 #define SPAN(r, c)       wxGBSpan(r,c)
 
 CraoConfig::CraoConfig(wxWindow *parent, modbus_t *mbctx) :
-	wxDialog(parent, wxID_ANY, _("CrAO Mount"),
+	wxDialog(parent, wxID_ANY, _("CrAO ZTSH Mount"),
 		wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
 	modbus_ctx = mbctx;	
@@ -53,11 +53,11 @@ CraoConfig::CraoConfig(wxWindow *parent, modbus_t *mbctx) :
     int border = 2;
 
     int pos = 0;
-    wxGridBagSizer *gbs = new wxGridBagSizer(0, 25);
+    wxGridBagSizer *gbs = new wxGridBagSizer(2, 25);
     wxBoxSizer *sizer;
 
-    gbs->Add(new wxStaticText(this, wxID_ANY, _("Serial device configuration")),
-             POS(pos, 1), SPAN(0, 0), sizerSectionFlags, border);
+    gbs->Add(new wxStaticText(this, wxID_ANY, _(" Serial device configuration")),
+             POS(pos, 0), SPAN(0, 0), sizerSectionFlags, border);
 
 	pos++;
 
@@ -122,21 +122,38 @@ CraoConfig::CraoConfig(wxWindow *parent, modbus_t *mbctx) :
     gbs->Add(parity, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
 
 	pos++;
+	pos++;
 
-    gbs->Add(new wxStaticText(this, wxID_ANY, _("Modbus ID: ")),
+    gbs->Add(new wxStaticText(this, wxID_ANY, _(" ADAM IO device configuration")),
+             POS(pos, 0), SPAN(1, 0), sizerSectionFlags, border);
+
+	pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Modbus addr: ")),
              POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
 
-    mbid = new wxTextCtrl(this, wxID_ANY);
-
-    gbs->Add(mbid, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
-
+    adm_mbid = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(adm_mbid, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
     pos++;
+ 
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("RA relay channel num: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    adm_ra_channel = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(adm_ra_channel, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("DEC relay channel num: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    adm_dec_channel = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(adm_dec_channel, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
     gbs->Add(new wxStaticText(this, wxID_ANY, _T("")),
 		 POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
 
 	pos++;
-
-	gbs->Add(new wxButton(this, MOTCFG, _("Motors cfg")), POS(pos, 1), SPAN(1, 1), sizerButtonFlags, border);
 
 
     sizer = new wxBoxSizer(wxVERTICAL) ;
@@ -173,9 +190,20 @@ void CraoConfig::LoadSettings()
 
 	parity->SetValue(curr_parity);
 
-	sprintf(str, "%d", curr_mbid);
-	mbid->Clear();
-	mbid->WriteText(str);
+	sprintf(str, "%d", curr_adm_mbid);
+	adm_mbid->Clear();
+	adm_mbid->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_adm_ra_channel);
+	adm_ra_channel->Clear();
+	adm_ra_channel->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_adm_dec_channel);
+	adm_dec_channel->Clear();
+	adm_dec_channel->WriteText(str);
+	memset(str, 0, sizeof(str));
 }
 
 BEGIN_EVENT_TABLE(CraoConfig, wxDialog)
@@ -194,7 +222,9 @@ void CraoConfig::SaveSettings()
 	curr_dbits = wxAtoi(dbits->GetValue());
 	curr_sbits = wxAtoi(sbits->GetValue());
 	curr_parity = parity->GetValue();
-	curr_mbid = wxAtoi(mbid->GetLineText(0));
+	curr_adm_mbid = wxAtoi(adm_mbid->GetLineText(0));
+	curr_adm_ra_channel = wxAtoi(adm_ra_channel->GetLineText(0));
+	curr_adm_dec_channel = wxAtoi(adm_dec_channel->GetLineText(0));
 }
 
 void CraoConfig::OnMotCfgButton(wxCommandEvent& evt)

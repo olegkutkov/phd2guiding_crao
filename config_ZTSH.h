@@ -59,7 +59,9 @@ public:
 	int curr_dbits;
 	int curr_sbits;
 	wxString curr_parity;
-	int curr_mbid;
+	int curr_adm_mbid;
+	int curr_adm_ra_channel;
+	int curr_adm_dec_channel;
 
 private:
 	void OnMotCfgButton(wxCommandEvent& evt);
@@ -69,7 +71,9 @@ private:
 	wxComboBox *dbits;
 	wxComboBox *sbits;
 	wxComboBox *parity;
-	wxTextCtrl *mbid;
+	wxTextCtrl *adm_mbid;
+	wxTextCtrl *adm_ra_channel;
+	wxTextCtrl *adm_dec_channel;;
 
 	modbus_t *modbus_ctx;
 
