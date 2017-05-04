@@ -36,6 +36,8 @@
 
 #include <errno.h>
 #include <unistd.h>
+#include <iomanip>
+#include <sstream>
 
 #include "scope_ztsh_hardware_comm.h"
 
@@ -99,7 +101,10 @@ bool ZtshHwComm::ConfigureSerial(const char* device, const int baud, const char 
 
 void ZtshHwComm::ConfigureAdam(const int addr, const int pwrch, const int dminch, const int dplusch)
 {
-	sprintf(adam_addr, "%02X", addr);
+	std::stringstream stream;
+	stream << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << addr;
+	adam_addr[0] = stream.str()[0];
+	adam_addr[1] = stream.str()[1];
 
 	adam_pwr_ch = pwrch;
 	adam_delta_min_ch = dminch;
