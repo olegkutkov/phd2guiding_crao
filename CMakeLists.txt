@@ -303,6 +303,7 @@ set(scopes_SRC
   ${phd_src_dir}/scope_INDI.cpp
   ${phd_src_dir}/scopes.h
   ${phd_src_dir}/scope_ztsh.cpp
+  ${phd_src_dir}/scope_ztsh_hardware_comm.cpp
   ${phd_src_dir}/stepguider_simulator.h
   ${phd_src_dir}/stepguider_sxao.cpp
   ${phd_src_dir}/stepguider_sxao.h
