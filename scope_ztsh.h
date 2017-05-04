@@ -1,5 +1,5 @@
 /*
- *  scope_INDI.cpp
+ *  scope_ztsh
  *  PHD Guiding
  *
  *  Module for ZTSH autogude system, Crimean astrophysical observatory
@@ -36,7 +36,8 @@
 #ifdef  GUIDE_ZTSH
 
 #include <vector>
-#include <modbus/modbus.h>
+
+class ZtshHwComm;
 
 class ScopeZTSH : public Scope {
 public:
@@ -53,7 +54,7 @@ public:
     bool   CanPulseGuide();
 
 private:
-	modbus_t *ctx;
+	ZtshHwComm *hwcomm;
 
 	void EnumerateSerialDevices(std::vector<wxString>& devices);
 };

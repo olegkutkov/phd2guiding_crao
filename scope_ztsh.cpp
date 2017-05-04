@@ -33,6 +33,7 @@
 
 #include "phd.h"
 #include "config_ZTSH.h"
+#include "scope_ztsh_hardware_comm.h"
 
 #include <stdio.h>
 
@@ -43,10 +44,11 @@
 #include <stdlib.h>
 #include <errno.h>
 
+
 #ifdef GUIDE_ZTSH
 
 ScopeZTSH::ScopeZTSH()
-	: ctx (NULL)
+	: hwcomm (NULL)
 {	
 }
 
@@ -83,43 +85,33 @@ bool ScopeZTSH::Connect(void)
 
 	const char *device_c = device.mb_str();
 
-	ctx = modbus_new_rtu(device_c, baud, parity_c[0], dbits, sbits);
+	hwcomm = new ZtshHwComm();
 
-	if (!ctx) {
-		wxMessageBox(_("Failed to initialize modbus using current serial configuration"), _("Error"), wxOK | wxICON_ERROR);
+	if (!hwcomm) {
+		wxMessageBox(_("Failed to allocate memory for ZTSH hardware communicator"), _("Error"), wxOK | wxICON_ERROR);
+		return true; // yes, means error
+	}
+
+	if (!hwcomm->ConfigureSerial(device_c, baud, parity_c[0], dbits, sbits)) {
+		wxMessageBox(hwcomm->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
 		return true;
 	}
 
-	int mbid = pConfig->Profile.GetInt("/crao/ztsh/mbid", 10);
+	hwcomm->ConfigureAdam( pConfig->Profile.GetInt("/crao/ztsh/adm_addr", 11),
+							 pConfig->Profile.GetInt("/crao/ztsh/adm_pwr_channel", 0),
+							 pConfig->Profile.GetInt("/crao/ztsh/adm_dec_minus_channel", 1),
+							 pConfig->Profile.GetInt("/crao/ztsh/adm_dec_plus_channel", 2) );
 
-	if (modbus_set_slave(ctx, mbid) != 0) {
-		wxMessageBox(_("Failed to set selected modbus slave id"), _("Error"), wxOK | wxICON_ERROR);
-		modbus_free(ctx);
-		return true;
-	}
+	hwcomm->ConfigureInverters( pConfig->Profile.GetInt("/crao/ztsh/inv_hour_modbus_addr", 1),
+								pConfig->Profile.GetInt("/crao/ztsh/inv_dec_modbus_addr", 2) );
 
-	if (modbus_connect(ctx) != 0) {
-		wxMessageBox(wxString("Modbus connection failed with error: ") + wxString(modbus_strerror(errno)), _("Error"), wxOK | wxICON_ERROR);
-		modbus_free(ctx);
-		return true;
-	}
+	hwcomm->SetModbusDebug(pConfig->Profile.GetInt("/crao/ztsh/modbus_debug_mode", 0));
+	hwcomm->SetModbusProtoRecovery(pConfig->Profile.GetInt("/crao/ztsh/modbus_protocol_recovery", 0));
 
-/*	uint16_t hw_answ;
+	hwcomm->AdamEnableInverterPower();
 
-	if (modbus_read_registers(ctx, 70, 1, &hw_answ) == -1) {
-		wxMessageBox(wxString("Failed to communicate with the Mount hardware, modbus error: ") + wxString(modbus_strerror(errno)), _("Error"), wxOK | wxICON_ERROR);
-		modbus_close(ctx);
-		modbus_free(ctx);
-		return true;
-	}
+	hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
 
-	if (hw_answ != 100) {
-		wxMessageBox(wxString("Failed to communicate with the Mount hardware, strange answer from device"), _("Error"), wxOK | wxICON_ERROR);
-		modbus_close(ctx);
-		modbus_free(ctx);
-		return true;
-	}
-*/
 	Scope::Connect();
 
 	return connect_failed;
@@ -127,10 +119,13 @@ bool ScopeZTSH::Connect(void)
 
 bool ScopeZTSH::Disconnect(void)
 {
-	modbus_close(ctx);
-	modbus_free(ctx);
+	if (hwcomm) {
+		hwcomm->StopDecAxis();
+		hwcomm->AdamDisableInverterPower();
 
-	ctx = NULL;
+		delete hwcomm;
+		hwcomm = NULL;
+	}
 
 	Scope::Disconnect();
 
@@ -182,48 +177,69 @@ void ScopeZTSH::EnumerateSerialDevices(std::vector<wxString>& devices)
 
 void ScopeZTSH::SetupDialog() 
 {
-    CraoConfig *craoDlg = new CraoConfig(wxGetActiveWindow(), ctx);
+    ZtshConfig *ztshDlg = new ZtshConfig(wxGetActiveWindow());
 
-	if (ctx) {
-		craoDlg->SetConnectedState();
-	}
+	ztshDlg->curr_device = pConfig->Profile.GetString("/crao/ztsh/serial", _T(""));
+	ztshDlg->curr_baud = pConfig->Profile.GetInt("/crao/ztsh/baud", 9600);
+	ztshDlg->curr_dbits = pConfig->Profile.GetInt("/crao/ztsh/dbits", 8);
+	ztshDlg->curr_sbits = pConfig->Profile.GetInt("/crao/ztsh/sbits", 1);
+	ztshDlg->curr_parity = pConfig->Profile.GetString("/crao/ztsh/parity", "none");
+	ztshDlg->curr_adm_addr = pConfig->Profile.GetInt("/crao/ztsh/adm_addr", 11);
+	ztshDlg->curr_adm_power_channel = pConfig->Profile.GetInt("/crao/ztsh/adm_pwr_channel", 0);
+	ztshDlg->curr_adm_dec_plus_channel = pConfig->Profile.GetInt("/crao/ztsh/adm_dec_plus_channel", 2);
+	ztshDlg->curr_adm_dec_minus_channel = pConfig->Profile.GetInt("/crao/ztsh/adm_dec_minus_channel", 1);
+	ztshDlg->curr_inv_hour_modbus_addr = pConfig->Profile.GetInt("/crao/ztsh/inv_hour_modbus_addr", 1);
+	ztshDlg->curr_inv_hour_low_speed = pConfig->Profile.GetInt("/crao/ztsh/inv_hour_low_speed", 4635);
+	ztshDlg->curr_inv_hour_norm_speed = pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035);
+	ztshDlg->curr_inv_hour_high_speed = pConfig->Profile.GetInt("/crao/ztsh/inv_hour_high_speed", 6000);
+	ztshDlg->curr_inv_dec_modbus_addr = pConfig->Profile.GetInt("/crao/ztsh/inv_dec_modbus_addr", 2);
+	ztshDlg->curr_inv_dec_low_speed = pConfig->Profile.GetInt("/crao/ztsh/inv_dec_low_speed", 75);
+	ztshDlg->curr_inv_dec_high_speed = pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450);
+	ztshDlg->curr_debug_mode = pConfig->Profile.GetInt("/crao/ztsh/modbus_debug_mode", 0);
+	ztshDlg->curr_precovery_mode = pConfig->Profile.GetInt("/crao/ztsh/modbus_protocol_recovery", 0);
 
-	craoDlg->curr_device = pConfig->Profile.GetString("/crao/ztsh/serial", _T(""));
-	craoDlg->curr_baud = pConfig->Profile.GetInt("/crao/ztsh/baud", 9600);
-	craoDlg->curr_dbits = pConfig->Profile.GetInt("/crao/ztsh/dbits", 8);
-	craoDlg->curr_sbits = pConfig->Profile.GetInt("/crao/ztsh/sbits", 1);
-	craoDlg->curr_parity = pConfig->Profile.GetString("/crao/ztsh/parity", "none");
-	craoDlg->curr_adm_mbid = pConfig->Profile.GetInt("/crao/ztsh/adm_mbid", 1);
-	craoDlg->curr_adm_ra_channel = pConfig->Profile.GetInt("/crao/ztsh/adm_ra_channel", 1);
-	craoDlg->curr_adm_dec_channel = pConfig->Profile.GetInt("/crao/ztsh/adm_dec_channel", 2);
-
-	EnumerateSerialDevices(craoDlg->tty_devices);
+	EnumerateSerialDevices(ztshDlg->tty_devices);
 
     // initialize with actual values
-	craoDlg->LoadSettings();
+	ztshDlg->LoadSettings();
 
-    if (craoDlg->ShowModal() == wxID_OK) {
+    if (ztshDlg->ShowModal() == wxID_OK) {
 		// if OK save the values to the current profile
-		craoDlg->SaveSettings();
+		ztshDlg->SaveSettings();
 
-		pConfig->Profile.SetString("/crao/ztsh/serial", craoDlg->curr_device);
-		pConfig->Profile.SetInt("/crao/ztsh/baud", craoDlg->curr_baud);
-		pConfig->Profile.SetInt("/crao/ztsh/dbits", craoDlg->curr_dbits);
-		pConfig->Profile.SetInt("/crao/ztsh/sbits", craoDlg->curr_sbits);
-		pConfig->Profile.SetString("/crao/ztsh/parity", craoDlg->curr_parity);
-		pConfig->Profile.SetInt("/crao/ztsh/adm_mbid", craoDlg->curr_adm_mbid);
-		pConfig->Profile.SetInt("/crao/ztsh/adm_ra_channel", craoDlg->curr_adm_ra_channel);
-		pConfig->Profile.SetInt("/crao/ztsh/adm_dec_channel", craoDlg->curr_adm_dec_channel);
+		pConfig->Profile.SetString("/crao/ztsh/serial", ztshDlg->curr_device);
+		pConfig->Profile.SetInt("/crao/ztsh/baud", ztshDlg->curr_baud);
+		pConfig->Profile.SetInt("/crao/ztsh/dbits", ztshDlg->curr_dbits);
+		pConfig->Profile.SetInt("/crao/ztsh/sbits", ztshDlg->curr_sbits);
+		pConfig->Profile.SetString("/crao/ztsh/parity", ztshDlg->curr_parity);
+		pConfig->Profile.SetInt("/crao/ztsh/adm_addr", ztshDlg->curr_adm_addr);
+		pConfig->Profile.SetInt("/crao/ztsh/adm_pwr_channel", ztshDlg->curr_adm_power_channel);
+		pConfig->Profile.SetInt("/crao/ztsh/adm_dec_plus_channel", ztshDlg->curr_adm_dec_plus_channel);
+		pConfig->Profile.SetInt("/crao/ztsh/adm_dec_minus_channel", ztshDlg->curr_adm_dec_minus_channel);
+		pConfig->Profile.SetInt("/crao/ztsh/inv_hour_modbus_addr", ztshDlg->curr_inv_hour_modbus_addr);
+		pConfig->Profile.SetInt("/crao/ztsh/inv_hour_low_speed", ztshDlg->curr_inv_hour_low_speed);
+		pConfig->Profile.SetInt("/crao/ztsh/inv_hour_norm_speed", ztshDlg->curr_inv_hour_norm_speed);
+		pConfig->Profile.SetInt("/crao/ztsh/inv_hour_high_speed", ztshDlg->curr_inv_hour_high_speed);
+		pConfig->Profile.SetInt("/crao/ztsh/inv_dec_modbus_addr", ztshDlg->curr_inv_dec_modbus_addr);
+		pConfig->Profile.SetInt("/crao/ztsh/inv_dec_low_speed", ztshDlg->curr_inv_dec_low_speed);
+		pConfig->Profile.SetInt("/crao/ztsh/inv_dec_high_speed", ztshDlg->curr_inv_dec_high_speed);
+		pConfig->Profile.SetInt("/crao/ztsh/modbus_debug_mode", ztshDlg->curr_debug_mode);
+		pConfig->Profile.SetInt("/crao/ztsh/modbus_protocol_recovery", ztshDlg->curr_precovery_mode);
     }
 
-	craoDlg->Destroy();
+	ztshDlg->Destroy();
 
-	delete craoDlg;
+	delete ztshDlg;
+
+	if (hwcomm) {
+		hwcomm->SetModbusDebug(pConfig->Profile.GetInt("/crao/ztsh/modbus_debug_mode", 0));
+		hwcomm->SetModbusProtoRecovery(pConfig->Profile.GetInt("/crao/ztsh/modbus_protocol_recovery", 0));
+	}
 }
 
 bool ScopeZTSH::CanPulseGuide()
 {
-	return true;
+	return false;
 }
 
 static wxString PulseGuideFailedAlertEnabledKey()
@@ -239,57 +255,39 @@ static void SuppressPulseGuideFailedAlert(long)
 
 Mount::MOVE_RESULT ScopeZTSH::Guide(GUIDE_DIRECTION direction, int duration)
 {
-    switch (direction) {
-        case EAST:
-			if (modbus_write_register(ctx, 11, duration) == -1)  {
-				wxMessageBox(wxString("Failed to communicate with the Mount hardware, modbus error: ") + wxString(modbus_strerror(errno)), _("Error"), wxOK | wxICON_ERROR);
-				pFrame->SuppressableAlert(PulseGuideFailedAlertEnabledKey(), _("PulseGuide command to mount has failed - guiding is likely to be ineffective."), SuppressPulseGuideFailedAlert, 0);
+	switch (direction) {
+		case EAST:
+			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_high_speed", 6000));
+			wxMilliSleep(duration);
+			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
 
-				return MOVE_STOP_GUIDING;
-			}
+			break;
 
-			printf("Pulse RA+ for %i\n", duration);
-            break;
+		case WEST:
+			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_low_speed", 4635));
+			wxMilliSleep(duration);
+			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
 
-        case WEST:
-			if (modbus_write_register(ctx, 12, duration) == -1) {
-				wxMessageBox(wxString("Failed to communicate with the Mount hardware, modbus error: ") + wxString(modbus_strerror(errno)), _("Error"), wxOK | wxICON_ERROR);
-				pFrame->SuppressableAlert(PulseGuideFailedAlertEnabledKey(), _("PulseGuide command to mount has failed - guiding is likely to be ineffective."), SuppressPulseGuideFailedAlert, 0);
+			break;
 
-				return MOVE_STOP_GUIDING;
-			}
+		case NORTH:
+			hwcomm->SetDecAxisSpeed(DEC_DIRECTION_PLUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450));
+			hwcomm->AdamRelayEnableDecPlus();
+			wxMilliSleep(duration);
+			hwcomm->StopDecAxis();
+			hwcomm->AdamRelayDisableDecPlus();
 
-			printf("Pulse RA- for %i\n", duration);
-            break;
+			break;
 
-        case NORTH:
-			if (modbus_write_register(ctx, 21, duration) == -1) {
-				wxMessageBox(wxString("Failed to communicate with the Mount hardware, modbus error: ") + wxString(modbus_strerror(errno)), _("Error"), wxOK | wxICON_ERROR);
-				pFrame->SuppressableAlert(PulseGuideFailedAlertEnabledKey(), _("PulseGuide command to mount has failed - guiding is likely to be ineffective."), SuppressPulseGuideFailedAlert, 0);
+		case SOUTH:
+			hwcomm->SetDecAxisSpeed(DEC_DIRECTION_MINUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450));
+			hwcomm->AdamRelayEnableDecMinus();
+			wxMilliSleep(duration);
+			hwcomm->StopDecAxis();
+			hwcomm->AdamRelayDisableDecMinus();
 
-				return MOVE_ERROR;
-			}
-
-			printf("Pulse DEC+ for %i\n", duration);
-            break;
-
-        case SOUTH:
-			if (modbus_write_register(ctx, 22, duration) == -1) {
-				wxMessageBox(wxString("Failed to communicate with the Mount hardware, modbus error: ") + wxString(modbus_strerror(errno)), _("Error"), wxOK | wxICON_ERROR);
-				pFrame->SuppressableAlert(PulseGuideFailedAlertEnabledKey(), _("PulseGuide command to mount has failed - guiding is likely to be ineffective."), SuppressPulseGuideFailedAlert, 0);
-
-				return MOVE_ERROR;
-			}
-
-			printf("Pulse DEC- for %i\n", duration);
-            break;
-
-        case NONE:
-		    printf("error ScopeZTSH::Guide NONE\n");
-            break;
-    }
-
-    wxMilliSleep(duration);
+			break;
+	}
 
 	return MOVE_OK;
 }
