@@ -32,20 +32,16 @@
  */
 
 #include "config_ZTSH.h"
-//#include "config_CRAO_motors.h"
 
 #define MOTCFG 201
 
 #define POS(r, c)        wxGBPosition(r,c)
 #define SPAN(r, c)       wxGBSpan(r,c)
 
-CraoConfig::CraoConfig(wxWindow *parent, modbus_t *mbctx) :
+ZtshConfig::ZtshConfig(wxWindow *parent) :
 	wxDialog(parent, wxID_ANY, _("CrAO ZTSH Mount"),
 		wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
-	modbus_ctx = mbctx;	
-	is_connected = false;
-
     auto sizerLabelFlags  = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL;
     auto sizerButtonFlags = wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL;
     auto sizerSectionFlags = wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL;
@@ -129,32 +125,109 @@ CraoConfig::CraoConfig(wxWindow *parent, modbus_t *mbctx) :
 
 	pos++;
 
-    gbs->Add(new wxStaticText(this, wxID_ANY, _("Modbus addr: ")),
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Adam ascii addr (int): ")),
              POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
 
-    adm_mbid = new wxTextCtrl(this, wxID_ANY);
-    gbs->Add(adm_mbid, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    adm_addr = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(adm_addr, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Main power relay channel num: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    adm_power_channel = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(adm_power_channel, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
     pos++;
  
-    gbs->Add(new wxStaticText(this, wxID_ANY, _("RA relay channel num: ")),
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec plus relay channel num: ")),
              POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
 
-    adm_ra_channel = new wxTextCtrl(this, wxID_ANY);
-    gbs->Add(adm_ra_channel, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    adm_dec_plus_channel = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(adm_dec_plus_channel, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
     pos++;
 
-    gbs->Add(new wxStaticText(this, wxID_ANY, _("DEC relay channel num: ")),
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec minus relay channel num: ")),
              POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
 
-    adm_dec_channel = new wxTextCtrl(this, wxID_ANY);
-    gbs->Add(adm_dec_channel, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    adm_dec_minus_channel = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(adm_dec_minus_channel, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
     pos++;
 
     gbs->Add(new wxStaticText(this, wxID_ANY, _T("")),
 		 POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
-
 	pos++;
 
+    gbs->Add(new wxStaticText(this, wxID_ANY, _(" Inverters configuration")),
+             POS(pos, 0), SPAN(1, 0), sizerSectionFlags, border);
+	pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Ra inverter modbus addr (int): ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    inv_hour_modbus_addr = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(inv_hour_modbus_addr, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Ra low speed: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    inv_hour_low_speed = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(inv_hour_low_speed, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Ra normal speed: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    inv_hour_norm_speed = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(inv_hour_norm_speed, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Ra high speed: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    inv_hour_high_speed = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(inv_hour_high_speed, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec inverter modbus addr (int): ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    inv_dec_modbus_addr = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(inv_dec_modbus_addr, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec low speed: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    inv_dec_low_speed = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(inv_dec_low_speed, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec high speed: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+    inv_dec_high_speed = new wxTextCtrl(this, wxID_ANY);
+    gbs->Add(inv_dec_high_speed, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+    pos++;
+	pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _(" Modbus options")),
+             POS(pos, 0), SPAN(1, 0), sizerSectionFlags, border);
+	pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Protocol dumping (Linux and Mac only): ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+	debug_checkbox = new wxCheckBox(this, wxID_ANY, wxT("Enabled"));
+	gbs->Add(debug_checkbox, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+	pos++;
+
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Protocol recovery: ")),
+             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+
+	precovery_checkbox = new wxCheckBox(this, wxID_ANY, wxT("Enabled"));
+    gbs->Add(precovery_checkbox, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
 
     sizer = new wxBoxSizer(wxVERTICAL) ;
     sizer->Add(gbs);
@@ -166,7 +239,7 @@ CraoConfig::CraoConfig(wxWindow *parent, modbus_t *mbctx) :
     sizer->Fit(this) ;
 }
 
-void CraoConfig::LoadSettings()
+void ZtshConfig::LoadSettings()
 {
 	char str[80];
 
@@ -190,63 +263,97 @@ void CraoConfig::LoadSettings()
 
 	parity->SetValue(curr_parity);
 
-	sprintf(str, "%d", curr_adm_mbid);
-	adm_mbid->Clear();
-	adm_mbid->WriteText(str);
+	sprintf(str, "%d", curr_adm_addr);
+	adm_addr->Clear();
+	adm_addr->WriteText(str);
 	memset(str, 0, sizeof(str));
 
-	sprintf(str, "%d", curr_adm_ra_channel);
-	adm_ra_channel->Clear();
-	adm_ra_channel->WriteText(str);
+	sprintf(str, "%d", curr_adm_power_channel);
+	adm_power_channel->Clear();
+	adm_power_channel->WriteText(str);
 	memset(str, 0, sizeof(str));
 
-	sprintf(str, "%d", curr_adm_dec_channel);
-	adm_dec_channel->Clear();
-	adm_dec_channel->WriteText(str);
+	sprintf(str, "%d", curr_adm_dec_plus_channel);
+	adm_dec_plus_channel->Clear();
+	adm_dec_plus_channel->WriteText(str);
 	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_adm_dec_minus_channel);
+	adm_dec_minus_channel->Clear();
+	adm_dec_minus_channel->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_inv_hour_modbus_addr);
+	inv_hour_modbus_addr->Clear();
+	inv_hour_modbus_addr->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_inv_hour_low_speed);
+	inv_hour_low_speed->Clear();
+	inv_hour_low_speed->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_inv_hour_norm_speed);
+	inv_hour_norm_speed->Clear();
+	inv_hour_norm_speed->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_inv_hour_high_speed);
+	inv_hour_high_speed->Clear();
+	inv_hour_high_speed->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_inv_dec_modbus_addr);
+	inv_dec_modbus_addr->Clear();
+	inv_dec_modbus_addr->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_inv_dec_low_speed);
+	inv_dec_low_speed->Clear();
+	inv_dec_low_speed->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	sprintf(str, "%d", curr_inv_dec_high_speed);
+	inv_dec_high_speed->Clear();
+	inv_dec_high_speed->WriteText(str);
+	memset(str, 0, sizeof(str));
+
+	debug_checkbox->SetValue(curr_debug_mode);
+	precovery_checkbox->SetValue(curr_precovery_mode);
 }
 
-BEGIN_EVENT_TABLE(CraoConfig, wxDialog)
-EVT_BUTTON(MOTCFG, CraoConfig::OnMotCfgButton)
+BEGIN_EVENT_TABLE(ZtshConfig, wxDialog)
+EVT_BUTTON(MOTCFG, ZtshConfig::OnMotCfgButton)
 END_EVENT_TABLE()
 
-CraoConfig::~CraoConfig()
+ZtshConfig::~ZtshConfig()
 {
 	///
 }
 
-void CraoConfig::SaveSettings()
+void ZtshConfig::SaveSettings()
 {
 	curr_device = dev->GetValue();
 	curr_baud = wxAtoi(baud->GetValue());
 	curr_dbits = wxAtoi(dbits->GetValue());
 	curr_sbits = wxAtoi(sbits->GetValue());
 	curr_parity = parity->GetValue();
-	curr_adm_mbid = wxAtoi(adm_mbid->GetLineText(0));
-	curr_adm_ra_channel = wxAtoi(adm_ra_channel->GetLineText(0));
-	curr_adm_dec_channel = wxAtoi(adm_dec_channel->GetLineText(0));
+	curr_adm_addr = wxAtoi(adm_addr->GetLineText(0));
+	curr_adm_power_channel = wxAtoi(adm_power_channel->GetLineText(0));
+	curr_adm_dec_plus_channel = wxAtoi(adm_dec_plus_channel->GetLineText(0));
+	curr_adm_dec_minus_channel = wxAtoi(adm_dec_minus_channel->GetLineText(0));
+	curr_inv_hour_modbus_addr = wxAtoi(inv_hour_modbus_addr->GetLineText(0));
+	curr_inv_hour_low_speed = wxAtoi(inv_hour_low_speed->GetLineText(0));
+	curr_inv_hour_norm_speed = wxAtoi(inv_hour_norm_speed->GetLineText(0));
+	curr_inv_hour_high_speed = wxAtoi(inv_hour_high_speed->GetLineText(0));
+	curr_inv_dec_modbus_addr = wxAtoi(inv_dec_modbus_addr->GetLineText(0));
+	curr_inv_dec_low_speed = wxAtoi(inv_dec_low_speed->GetLineText(0));
+	curr_inv_dec_high_speed = wxAtoi(inv_dec_high_speed->GetLineText(0));
+	curr_debug_mode = debug_checkbox->IsChecked();
+	curr_precovery_mode = precovery_checkbox->IsChecked();
 }
 
-void CraoConfig::OnMotCfgButton(wxCommandEvent& evt)
+void ZtshConfig::OnMotCfgButton(wxCommandEvent& evt)
 {
-	if (!is_connected) {
-		wxMessageBox(_("Please connect to the Mount hardware before configuring motors"), _("Information"), wxOK | wxICON_INFORMATION);
-		return;
-	}
-
-//	CraoConfigMotors *mcfgDlg = new CraoConfigMotors(wxGetActiveWindow(), modbus_ctx);
-
-//	if (mcfgDlg->ShowModal() == wxID_OK) {
-		///
-//	}
-
-//	mcfgDlg->Destroy();
-
-//	delete mcfgDlg;
-}
-
-void CraoConfig::SetConnectedState()
-{
-	is_connected = true;
 }
 
