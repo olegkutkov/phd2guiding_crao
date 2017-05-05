@@ -38,6 +38,7 @@
 #include <unistd.h>
 #include <iomanip>
 #include <sstream>
+#include <string.h>
 
 #include "scope_ztsh_hardware_comm.h"
 
@@ -134,32 +135,32 @@ void ZtshHwComm::ConfigureInverters(const int ra_addr, const int dec_addr)
 
 bool ZtshHwComm::AdamEnableInverterPower()
 {
-	AdamCmd(ADAM_CHANNEL_POWER_RELAY, true);
+	return AdamCmd(ADAM_CHANNEL_POWER_RELAY, true);
 }
 
 bool ZtshHwComm::AdamDisableInverterPower()
 {
-	AdamCmd(ADAM_CHANNEL_POWER_RELAY, false);
+	return AdamCmd(ADAM_CHANNEL_POWER_RELAY, false);
 }
 
 bool ZtshHwComm::AdamRelayEnableDecPlus()
 {
-	AdamCmd(ADAM_CHANNEL_DELTA_PLUS_RELAY, true);
+	return AdamCmd(ADAM_CHANNEL_DELTA_PLUS_RELAY, true);
 }
 
 bool ZtshHwComm::AdamRelayDisableDecPlus()
 {
-	AdamCmd(ADAM_CHANNEL_DELTA_PLUS_RELAY, false);
+	return AdamCmd(ADAM_CHANNEL_DELTA_PLUS_RELAY, false);
 }
 
 bool ZtshHwComm::AdamRelayEnableDecMinus()
 {
-	AdamCmd(ADAM_CHANNEL_DELTA_MINUS_RELAY, true);
+	return AdamCmd(ADAM_CHANNEL_DELTA_MINUS_RELAY, true);
 }
 
 bool ZtshHwComm::AdamRelayDisableDecMinus()
 {
-	AdamCmd(ADAM_CHANNEL_DELTA_MINUS_RELAY, false);
+	return AdamCmd(ADAM_CHANNEL_DELTA_MINUS_RELAY, false);
 }
 
 bool ZtshHwComm::SetHourAxisSpeed(const int speed)
@@ -167,7 +168,7 @@ bool ZtshHwComm::SetHourAxisSpeed(const int speed)
 	modbus_set_slave(ctx, inv_ra_addr);
 
 	if (modbus_write_register(ctx, RA_INVERTER_HZ_REG, speed) == -1) {
-		last_error = modbus_strerror(errno);
+		last_error = std::string("Failed to communicate with RA axis inverter, error:\n") + modbus_strerror(errno);
 		return false;
 	}
 
@@ -198,7 +199,7 @@ bool ZtshHwComm::AdamCmd(const uint8_t channel, bool enable)
 	adam_data_buf[6] = (uint8_t) enable + ASCII_NUM_START;
 	adam_data_buf[7] = ADAM_ASCII_COMMAND_END;
 
-	write(modbus_get_socket(ctx), adam_data_buf, adam_data_buf_len);
+	ssize_t written = write(modbus_get_socket(ctx), adam_data_buf, adam_data_buf_len);
 
 	usleep(250000);
 
@@ -209,6 +210,13 @@ bool ZtshHwComm::AdamCmd(const uint8_t channel, bool enable)
 				adam_data_buf[0], adam_data_buf[1], adam_data_buf[2], adam_data_buf[3], 
 				adam_data_buf[4], adam_data_buf[5], adam_data_buf[6]);
 	}
+
+	if (written != adam_data_buf_len) {
+		last_error = std::string("Failed to write buffer for ADAM cmd, error:\n") + strerror(errno);
+		return false;
+	}
+
+	return written == adam_data_buf_len;
 }
 
 bool ZtshHwComm::DecAxisCmd(const uint16_t direction, const uint16_t speed)
@@ -219,7 +227,7 @@ bool ZtshHwComm::DecAxisCmd(const uint16_t direction, const uint16_t speed)
 	dex_inverter_data[1] = speed;
 
 	if (modbus_write_registers(ctx, DEC_INVERTER_ROTATION_REG, DEC_INVERTER_DATA_LEN, dex_inverter_data) == -1) {
-		last_error = modbus_strerror(errno);
+		last_error = std::string("Failed to communicate with DEC axis inverter, error:\n") + modbus_strerror(errno);
 		return false;
 	}
 

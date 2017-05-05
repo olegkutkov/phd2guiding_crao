@@ -55,6 +55,7 @@ public:
 
 private:
 	ZtshHwComm *hwcomm;
+	void DisplayMoveError(std::string dir);
 
 	void EnumerateSerialDevices(std::vector<wxString>& devices);
 };

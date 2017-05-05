@@ -80,10 +80,9 @@ private:
 	int adam_delta_plus_ch;
 	int inv_ra_addr;
 	int inv_dec_addr;
+	bool adam_dump;
 
 	char adam_addr[2];
-
-	bool adam_dump;
 
 	std::string last_error;
 };

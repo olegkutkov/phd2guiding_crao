@@ -108,9 +108,19 @@ bool ScopeZTSH::Connect(void)
 	hwcomm->SetModbusDebug(pConfig->Profile.GetInt("/crao/ztsh/modbus_debug_mode", 0));
 	hwcomm->SetModbusProtoRecovery(pConfig->Profile.GetInt("/crao/ztsh/modbus_protocol_recovery", 0));
 
-	hwcomm->AdamEnableInverterPower();
+	bool res = hwcomm->AdamEnableInverterPower();
 
-	hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
+	if (!res) {
+		wxMessageBox(hwcomm->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
+		return true;
+	}
+
+	res = hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
+
+	if (!res) {
+		wxMessageBox(hwcomm->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
+//		return true;
+	}
 
 	Scope::Connect();
 
@@ -120,8 +130,13 @@ bool ScopeZTSH::Connect(void)
 bool ScopeZTSH::Disconnect(void)
 {
 	if (hwcomm) {
-		hwcomm->StopDecAxis();
-		hwcomm->AdamDisableInverterPower();
+		if (!hwcomm->StopDecAxis()) {
+			wxMessageBox((std::string("Failed to stop DEC axis!\n") + hwcomm->GetErrorText()).c_str(), _("Error"), wxOK | wxICON_ERROR);
+		}
+
+		if (!hwcomm->AdamDisableInverterPower()) {
+			wxMessageBox((std::string("Failed to disable power!\n") + hwcomm->GetErrorText()).c_str(), _("Error"), wxOK | wxICON_ERROR);
+		}
 
 		delete hwcomm;
 		hwcomm = NULL;
@@ -253,25 +268,48 @@ static void SuppressPulseGuideFailedAlert(long)
 	pConfig->Global.SetBoolean(PulseGuideFailedAlertEnabledKey(), false);
 }
 
+
+void ScopeZTSH::DisplayMoveError(std::string dir)
+{
+	std::string str = "Move " + dir + " failed!\n" + hwcomm->GetErrorText();
+
+	wxMessageBox(str.c_str(), _("Error"), wxOK | wxICON_ERROR);
+
+	pFrame->SuppressableAlert( PulseGuideFailedAlertEnabledKey(), _("PulseGuide command to mount has failed - guiding is likely to be ineffective."),
+								SuppressPulseGuideFailedAlert, 0 );
+}
+
 Mount::MOVE_RESULT ScopeZTSH::Guide(GUIDE_DIRECTION direction, int duration)
 {
 	switch (direction) {
 		case EAST:
-			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_high_speed", 6000));
+			if (!hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_high_speed", 6000))) {
+				DisplayMoveError("EAST");
+				return MOVE_STOP_GUIDING;
+			}
+
 			wxMilliSleep(duration);
 			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
 
 			break;
 
 		case WEST:
-			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_low_speed", 4635));
+			if (!hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_low_speed", 4635))) {
+				DisplayMoveError("WEST");
+				return MOVE_STOP_GUIDING;
+			}
+
 			wxMilliSleep(duration);
 			hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
 
 			break;
 
 		case NORTH:
-			hwcomm->SetDecAxisSpeed(DEC_DIRECTION_PLUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450));
+			if (!hwcomm->SetDecAxisSpeed(DEC_DIRECTION_PLUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450))) {
+				DisplayMoveError("NORTH");
+				return MOVE_STOP_GUIDING;
+			}
+
 			hwcomm->AdamRelayEnableDecPlus();
 			wxMilliSleep(duration);
 			hwcomm->StopDecAxis();
@@ -280,7 +318,11 @@ Mount::MOVE_RESULT ScopeZTSH::Guide(GUIDE_DIRECTION direction, int duration)
 			break;
 
 		case SOUTH:
-			hwcomm->SetDecAxisSpeed(DEC_DIRECTION_MINUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450));
+			if (!hwcomm->SetDecAxisSpeed(DEC_DIRECTION_MINUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450))) {
+				DisplayMoveError("SOUTH");
+				return MOVE_STOP_GUIDING;
+			}
+
 			hwcomm->AdamRelayEnableDecMinus();
 			wxMilliSleep(duration);
 			hwcomm->StopDecAxis();
