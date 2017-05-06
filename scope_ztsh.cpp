@@ -33,15 +33,18 @@
 
 #include "phd.h"
 #include "config_CRAO.h"
+#include "serialport.h"
 
 #include <stdio.h>
 
+#if defined (__linux__)
 #include <stdio.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#endif
 
 #ifdef GUIDE_ZTSH
 
@@ -174,7 +177,15 @@ void ScopeZTSH::EnumerateSerialDevices(std::vector<wxString>& devices)
 	closedir(ttydir);
 
 #elif defined (__WINDOWS__)
-	/// TODO: implement me!
+	SerialPort* sport = SerialPort::SerialPortFactory();
+
+	wxArrayString res = sport->GetSerialPortList();
+
+	for (size_t i = 0; i < res.size(); ++i) {
+		devices.push_back(res[i].mb_str());
+	}
+
+	delete sport;
 #endif
 }
 
