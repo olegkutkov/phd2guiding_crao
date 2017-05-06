@@ -38,6 +38,7 @@
 #include <vector>
 
 class ZtshHwComm;
+class ScopeZtshPosition;
 
 class ScopeZTSH : public Scope {
 public:
@@ -49,12 +50,19 @@ public:
     bool     HasSetupDialog(void) const;
     void     SetupDialog();
 
+    bool     CanReportPosition(void);
+    double   GetDeclination(void);
+    bool     GetGuideRates(double *pRAGuideRate, double *pDecGuideRate);
+    bool     GetCoordinates(double *ra, double *dec, double *siderealTime);
+    bool     GetSiteLatLong(double *latitude, double *longitude);
+
     MOVE_RESULT Guide(GUIDE_DIRECTION direction, int duration);
 
     bool   CanPulseGuide();
 
 private:
 	ZtshHwComm *hwcomm;
+	ScopeZtshPosition *scope_pos;
 	void DisplayMoveError(std::string dir);
 
 	void EnumerateSerialDevices(std::vector<wxString>& devices);

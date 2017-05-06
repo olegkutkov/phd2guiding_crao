@@ -2808,6 +2808,9 @@ msgstr "Подвижка"
 msgid "AO Position"
 msgstr "Позиция АО"
 
+msgid "Scope position"
+msgstr "Положение телескопа"
+
 #: graph-stepguider.cpp:62 target.cpp:66
 msgid "Select the number of frames of history to display"
 msgstr "Выбрать отображаемое в истории количество кадров"
@@ -3816,6 +3819,9 @@ msgstr "Включить/выключить статистику гидиров�
 #: myframe.cpp:472
 msgid "Display &AO Graph"
 msgstr "Показать график АО"
+
+msgid "Display scope &position"
+msgstr "Показать положение телескопа"
 
 #: myframe.cpp:472
 msgid "Enable / disable AO graph"

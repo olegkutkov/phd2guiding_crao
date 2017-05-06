@@ -120,6 +120,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(MENU_STATS, MyFrame::OnStats)
     EVT_MENU(MENU_AO_GRAPH, MyFrame::OnAoGraph)
     EVT_MENU(MENU_TARGET, MyFrame::OnTarget)
+    EVT_MENU(MENU_COORDS, MyFrame::OnCoords)
     EVT_MENU(MENU_SERVER, MyFrame::OnServerMenu)
     EVT_MENU(MENU_STARPROFILE, MyFrame::OnStarProfile)
     EVT_MENU(MENU_RESTORE_WINDOWS, MyFrame::OnRestoreWindows)
@@ -340,6 +341,11 @@ MyFrame::MyFrame(int instanceNumber, wxLocale *locale)
         Name(_T("Profile")).Caption(_("Star Profile")).
         Hide());
 
+    pCoordsView = new CoordsView(this);
+    m_mgr.AddPane(pCoordsView, wxAuiPaneInfo().
+        Name(_T("Coords")).Caption(_("Scope position")).
+        Hide());
+
     pTarget = new TargetWindow(this);
     m_mgr.AddPane(pTarget, wxAuiPaneInfo().
         Name(_T("Target")).Caption(_("Target")).
@@ -400,6 +406,7 @@ MyFrame::MyFrame(int instanceNumber, wxLocale *locale)
         m_mgr.GetPane(_T("AOPosition")).Caption(_("AO Position"));
         m_mgr.GetPane(_T("Profile")).Caption(_("Star Profile"));
         m_mgr.GetPane(_T("Target")).Caption(_("Target"));
+        m_mgr.GetPane(_T("Coords")).Caption(_("Scope position"));
         m_mgr.GetPane(_T("Guider")).PaneBorder(false);
     }
 
@@ -423,6 +430,10 @@ MyFrame::MyFrame(int instanceNumber, wxLocale *locale)
     panel_state = m_mgr.GetPane(_T("Profile")).IsShown();
     pProfile->SetState(panel_state);
     Menubar->Check(MENU_STARPROFILE, panel_state);
+
+    panel_state = m_mgr.GetPane(_T("Coords")).IsShown();
+    pCoordsView->SetState(panel_state);
+    Menubar->Check(MENU_COORDS, panel_state);
 
     panel_state = m_mgr.GetPane(_T("Target")).IsShown();
     pTarget->SetState(panel_state);
@@ -506,6 +517,7 @@ void MyFrame::SetupMenuBar(void)
     view_menu->AppendCheckItem(MENU_STATS, _("Display &Stats"), _("Enable / disable guide stats"));
     view_menu->AppendCheckItem(MENU_AO_GRAPH, _("Display &AO Graph"), _("Enable / disable AO graph"));
     view_menu->AppendCheckItem(MENU_TARGET,_("Display &Target"),_("Enable / disable target"));
+    view_menu->AppendCheckItem(MENU_COORDS,_("Display scope &position"),_("Enable / disable scope position"));
     view_menu->AppendCheckItem(MENU_STARPROFILE,_("Display Star &Profile"),_("Enable / disable star profile view"));
     view_menu->AppendSeparator();
     view_menu->AppendRadioItem(MENU_XHAIR0, _("&No Overlay"),_("No additional crosshairs"));
@@ -1850,6 +1862,7 @@ void MyFrame::OnClose(wxCloseEvent& event)
     if (help->GetFrame())
         help->GetFrame()->Close();
     delete help;
+
     help = 0;
 
     Destroy();

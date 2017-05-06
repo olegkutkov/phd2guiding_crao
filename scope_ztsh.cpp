@@ -34,6 +34,7 @@
 #include "phd.h"
 #include "config_ZTSH.h"
 #include "scope_ztsh_hardware_comm.h"
+#include "scope_ztsh_coords.h"
 
 #include <stdio.h>
 
@@ -49,12 +50,25 @@
 
 ScopeZTSH::ScopeZTSH()
 	: hwcomm (NULL)
-{	
+	, scope_pos (NULL)
+{
+	scope_pos = new ScopeZtshPosition();
+
+	if (!scope_pos) {
+		wxMessageBox(_("Failed to allocate memory for coordinates server object"), _("Error"), wxOK | wxICON_ERROR);
+	}
+
+//	if (!scope_pos->Connect("10.1.1.142", 16050)) {
+//		wxMessageBox(scope_pos->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
+//	}
 }
 
 ScopeZTSH::~ScopeZTSH()
 {
-	
+	if (scope_pos) {
+		delete scope_pos;
+		scope_pos = NULL;
+	}
 }
 
 bool ScopeZTSH::Connect(void)
@@ -332,6 +346,45 @@ Mount::MOVE_RESULT ScopeZTSH::Guide(GUIDE_DIRECTION direction, int duration)
 	}
 
 	return MOVE_OK;
+}
+
+bool ScopeZTSH::CanReportPosition(void)
+{
+	return false;
+}
+
+double ScopeZTSH::GetDeclination(void)
+{
+	double ha, ra, dec, ra_speed, dec_speed;
+	scope_pos->GetCoordsAndSpeed(ha, ra, dec, ra_speed, dec_speed);
+
+	return radians(dec);
+}
+
+bool ScopeZTSH::GetGuideRates(double *pRAGuideRate, double *pDecGuideRate)
+{
+	printf("ScopeZTSH::GetGuideRates\n");
+	return false;;
+}
+
+bool ScopeZTSH::GetCoordinates(double *ra, double *dec, double *siderealTime)
+{
+//	*ra = 253.3;
+//	*dec = 13.4596;
+//	*siderealTime = 22.29;
+
+	double ha_, ra_, dec_, ra_speed_, dec_speed_;
+	scope_pos->GetCoordsAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
+
+	return false;
+}
+
+bool ScopeZTSH::GetSiteLatLong(double *latitude, double *longitude)
+{
+	*latitude = 44.727903;
+	*longitude = 34.015728;
+
+	return false;
 }
 
 #endif

@@ -703,6 +703,21 @@ void MyFrame::OnTarget(wxCommandEvent& evt)
     m_mgr.Update();
 }
 
+void MyFrame::OnCoords(wxCommandEvent& evt)
+{
+    if (evt.IsChecked())
+    {
+        m_mgr.GetPane(_T("Coords")).Show().Right().Position(2).MinSize(293,70);
+    }
+    else
+    {
+        m_mgr.GetPane(_T("Coords")).Hide();
+    }
+
+    pCoordsView->SetState(evt.IsChecked());
+    m_mgr.Update();
+}
+
 // Redock windows and restore main window to size/position where everything should be readily accessible
 void MyFrame::OnRestoreWindows(wxCommandEvent& evt)
 {
