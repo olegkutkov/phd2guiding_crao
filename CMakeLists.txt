@@ -304,6 +304,7 @@ set(scopes_SRC
   ${phd_src_dir}/scopes.h
   ${phd_src_dir}/scope_ztsh.cpp
   ${phd_src_dir}/scope_ztsh_hardware_comm.cpp
+  ${phd_src_dir}/scope_ztsh_coords.cpp
   ${phd_src_dir}/stepguider_simulator.h
   ${phd_src_dir}/stepguider_sxao.cpp
   ${phd_src_dir}/stepguider_sxao.h
@@ -477,7 +478,8 @@ set(phd2_SRC
   ${phd_src_dir}/star.cpp
   ${phd_src_dir}/star.h
   ${phd_src_dir}/star_profile.cpp
-  ${phd_src_dir}/star_profile.h
+  ${phd_src_dir}/star_profile.h 
+  ${phd_src_dir}/coords_view.cpp
   ${phd_src_dir}/target.cpp
   ${phd_src_dir}/target.h
   ${phd_src_dir}/testguide.cpp
