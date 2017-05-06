@@ -306,7 +306,7 @@ wxArrayString Scope::List(void)
     ScopeList.Add(_("INDI Mount"));
 #endif
 #ifdef GUIDE_ZTSH
-	ScopeList.Add(_("CrAO ZTSH Mount"));
+    ScopeList.Add(_("CrAO ZTSH Mount"));
 #endif
 
     ScopeList.Sort(&CompareNoCase);
@@ -413,7 +413,7 @@ Scope *Scope::Factory(const wxString& choice)
         }
 #endif
 #ifdef GUIDE_ZTSH
-        else if (choice.Find(_T("ZTSH")) + 1) {
+        else if (choice.Find(_T("ZTSH")) + 1) { 
             pReturn = new ScopeZTSH();
         }
 #endif

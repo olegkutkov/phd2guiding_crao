@@ -154,6 +154,7 @@ WX_DEFINE_ARRAY_DOUBLE(double, ArrayOfDbl);
 #include "statswindow.h"
 #include "star_profile.h"
 #include "target.h"
+#include "coords_view.h"
 #include "graph-stepguider.h"
 #include "guide_algorithms.h"
 #include "guiders.h"

@@ -1,5 +1,5 @@
 /*
- *  scope_ztsh
+ *  scope_ztsh_hardware_comm
  *  PHD Guiding
  *
  *  Module for ZTSH autogude system, Crimean astrophysical observatory
@@ -33,40 +33,57 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifdef  GUIDE_ZTSH
 
-#include <vector>
+#include <modbus/modbus.h>
+#include <string>
 
-class ZtshHwComm;
-class ScopeZtshPosition;
+#define DEC_DIRECTION_PLUS 0x01
+#define DEC_DIRECTION_MINUS 0x03
 
-class ScopeZTSH : public Scope {
+class ZtshHwComm {
 public:
-	ScopeZTSH();
-	~ScopeZTSH();
+	ZtshHwComm();
+	~ZtshHwComm();
 
-	bool     Connect(void);
-    bool     Disconnect(void);
-    bool     HasSetupDialog(void) const;
-    void     SetupDialog();
+	bool ConfigureSerial(const char* device, const int baud, const char parity, 
+							const int dbits, const int sbits);
 
-    bool     CanReportPosition(void);
-    double   GetDeclination(void);
-    bool     GetGuideRates(double *pRAGuideRate, double *pDecGuideRate);
-    bool     GetCoordinates(double *ra, double *dec, double *siderealTime);
-    bool     GetSiteLatLong(double *latitude, double *longitude);
+	void ConfigureAdam(const int addr, const int pwrch, const int dminch, const int dplusch);
+	void ConfigureInverters(const int ra_addr, const int dec_addr);
 
-    MOVE_RESULT Guide(GUIDE_DIRECTION direction, int duration);
+	void SetModbusDebug(const bool debug);
+	void SetModbusProtoRecovery(const bool recovery);
 
-    bool   CanPulseGuide();
+	bool AdamEnableInverterPower();
+	bool AdamDisableInverterPower();
+
+	bool AdamRelayEnableDecPlus();
+	bool AdamRelayDisableDecPlus();
+	bool AdamRelayEnableDecMinus();
+	bool AdamRelayDisableDecMinus();
+
+	bool SetHourAxisSpeed(const int speed);
+
+	bool SetDecAxisSpeed(const uint16_t direction, const uint16_t speed);
+	bool StopDecAxis();
+
+	std::string GetErrorText();
 
 private:
-	ZtshHwComm *hwcomm;
-	ScopeZtshPosition *scope_pos;
-	void DisplayMoveError(std::string dir);
+	bool DecAxisCmd(const uint16_t direction, const uint16_t speed);
+	bool AdamCmd(const uint8_t channel, bool enable);
 
-	void EnumerateSerialDevices(std::vector<wxString>& devices);
+	modbus_t *ctx;
+
+	int adam_pwr_ch;
+	int adam_delta_min_ch;
+	int adam_delta_plus_ch;
+	int inv_ra_addr;
+	int inv_dec_addr;
+	bool adam_dump;
+
+	char adam_addr[2];
+
+	std::string last_error;
 };
-
-#endif
 

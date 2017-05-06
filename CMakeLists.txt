@@ -301,8 +301,10 @@ set(scopes_SRC
   ${phd_src_dir}/scope_voyager.h
   ${phd_src_dir}/scope_INDI.h
   ${phd_src_dir}/scope_INDI.cpp
-  ${phd_src_dir}/scope_ztsh.cpp
   ${phd_src_dir}/scopes.h
+  ${phd_src_dir}/scope_ztsh.cpp
+  ${phd_src_dir}/scope_ztsh_hardware_comm.cpp
+  ${phd_src_dir}/scope_ztsh_coords.cpp
   ${phd_src_dir}/stepguider_simulator.h
   ${phd_src_dir}/stepguider_sxao.cpp
   ${phd_src_dir}/stepguider_sxao.h
@@ -476,7 +478,8 @@ set(phd2_SRC
   ${phd_src_dir}/star.cpp
   ${phd_src_dir}/star.h
   ${phd_src_dir}/star_profile.cpp
-  ${phd_src_dir}/star_profile.h
+  ${phd_src_dir}/star_profile.h 
+  ${phd_src_dir}/coords_view.cpp
   ${phd_src_dir}/target.cpp
   ${phd_src_dir}/target.h
   ${phd_src_dir}/testguide.cpp
@@ -495,10 +498,9 @@ if(UNIX AND NOT APPLE)
       
       ${phd_src_dir}/indi_gui.cpp
       ${phd_src_dir}/indi_gui.h
-      
-      ${phd_src_dir}/config_CRAO.cpp
-      ${phd_src_dir}/config_CRAO_motors.cpp
 
+      ${phd_src_dir}/config_ZTSH.cpp
+      
       ${phd_src_dir}/wxled.cpp
       ${phd_src_dir}/wxled.h
      )

@@ -1,13 +1,11 @@
 /*
- *  scope_ztsh
+ *  coords_view.h
  *  PHD Guiding
  *
- *  Module for ZTSH autogude system, Crimean astrophysical observatory
+ *  Created by Oleg Kutkov
+ *  Copyright (c) 2017 Crimean Astrophysical observatory
  *  All rights reserved.
  *
- *  Copyright (c) 2017 Oleg Kutkov
- *  All rights reserved.
- * 
  *  This source code is distributed under the following "BSD" license
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -16,7 +14,7 @@
  *    Redistributions in binary form must reproduce the above copyright notice,
  *     this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *    Neither the name of Craig Stark, Stark Labs nor the names of its
+ *    Neither the name of Bret McKee, Dad Dog Development Ltd, nor the names of its
  *     contributors may be used to endorse or promote products derived from
  *     this software without specific prior written permission.
  *
@@ -32,40 +30,30 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
+ *
  */
-#ifdef  GUIDE_ZTSH
 
-#include <vector>
+#ifndef COORDS_VIEW_H
+#define COORDS_VIEW_H
 
-class ZtshHwComm;
-class ScopeZtshPosition;
-
-class ScopeZTSH : public Scope {
+class CoordsView : public wxWindow {
 public:
-	ScopeZTSH();
-	~ScopeZTSH();
+    CoordsView(wxWindow *parent);
+    ~CoordsView(void);
 
-	bool     Connect(void);
-    bool     Disconnect(void);
-    bool     HasSetupDialog(void) const;
-    void     SetupDialog();
-
-    bool     CanReportPosition(void);
-    double   GetDeclination(void);
-    bool     GetGuideRates(double *pRAGuideRate, double *pDecGuideRate);
-    bool     GetCoordinates(double *ra, double *dec, double *siderealTime);
-    bool     GetSiteLatLong(double *latitude, double *longitude);
-
-    MOVE_RESULT Guide(GUIDE_DIRECTION direction, int duration);
-
-    bool   CanPulseGuide();
+    void UpdateData(double ha, double ra, double dec, double ra_sp, double dec_sp);
+    void OnPaint(wxPaintEvent& evt);
+    void SetState(bool is_active);
 
 private:
-	ZtshHwComm *hwcomm;
-	ScopeZtshPosition *scope_pos;
-	void DisplayMoveError(std::string dir);
+    bool visible;
+	double curr_ha;
+	double curr_ra;
+	double curr_dec;
+	double curr_ra_sp;
+	double curr_dec_sp;
 
-	void EnumerateSerialDevices(std::vector<wxString>& devices);
+    DECLARE_EVENT_TABLE()
 };
 
 #endif

@@ -41,17 +41,14 @@
 #include <wx/string.h>
 #include <wx/stattext.h>
 #include <vector>
-#include <modbus/modbus.h>
 
-class CraoConfig : public wxDialog {
+class ZtshConfig : public wxDialog {
 public:
-	CraoConfig(wxWindow *parent, modbus_t *mbctx);
-	~CraoConfig();
+	ZtshConfig(wxWindow *parent);
+	~ZtshConfig();
 
 	void LoadSettings();
 	void SaveSettings();
-
-	void SetConnectedState();
 
 	std::vector<wxString> tty_devices;
 	wxString curr_device;
@@ -59,7 +56,23 @@ public:
 	int curr_dbits;
 	int curr_sbits;
 	wxString curr_parity;
-	int curr_mbid;
+
+	int curr_adm_addr;
+	int curr_adm_power_channel;
+	int curr_adm_dec_plus_channel;
+	int curr_adm_dec_minus_channel;
+
+	int curr_inv_hour_modbus_addr;
+	int curr_inv_hour_low_speed;
+	int curr_inv_hour_norm_speed;
+	int curr_inv_hour_high_speed;
+
+	int curr_inv_dec_modbus_addr;
+	int curr_inv_dec_low_speed;
+	int curr_inv_dec_high_speed;
+
+	bool curr_debug_mode;
+	bool curr_precovery_mode;
 
 private:
 	void OnMotCfgButton(wxCommandEvent& evt);
@@ -69,11 +82,23 @@ private:
 	wxComboBox *dbits;
 	wxComboBox *sbits;
 	wxComboBox *parity;
-	wxTextCtrl *mbid;
 
-	modbus_t *modbus_ctx;
+	wxTextCtrl *adm_addr;
+	wxTextCtrl *adm_power_channel;
+	wxTextCtrl *adm_dec_plus_channel;
+	wxTextCtrl *adm_dec_minus_channel;
 
-	bool is_connected;
+	wxTextCtrl *inv_hour_modbus_addr;
+	wxTextCtrl *inv_hour_low_speed;
+	wxTextCtrl *inv_hour_norm_speed;
+	wxTextCtrl *inv_hour_high_speed;
+
+	wxTextCtrl *inv_dec_modbus_addr;
+	wxTextCtrl *inv_dec_low_speed;
+	wxTextCtrl *inv_dec_high_speed;
+
+	wxCheckBox *debug_checkbox;
+	wxCheckBox *precovery_checkbox;
 
 	DECLARE_EVENT_TABLE()
 };

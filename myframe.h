@@ -212,6 +212,7 @@ public:
     GraphStepguiderWindow *pStepGuiderGraph;
     GearDialog *pGearDialog;
     ProfileWindow *pProfile;
+    CoordsView *pCoordsView;
     TargetWindow *pTarget;
     wxWindow *pDriftTool;
     wxWindow *pManualGuide;
@@ -287,6 +288,7 @@ public:
     void OnAoGraph(wxCommandEvent& evt);
     void OnStarProfile(wxCommandEvent& evt);
     void OnTarget(wxCommandEvent& evt);
+    void OnCoords(wxCommandEvent& evt);
     void OnRestoreWindows(wxCommandEvent& evt);
     void OnAutoStar(wxCommandEvent& evt);
     void OnBookmarksShow(wxCommandEvent& evt);
@@ -469,7 +471,6 @@ enum {
       SCOPE_EQMAC,
       SCOPE_GCUSBST4,
       SCOPE_INDI,
-      SCOPE_ZTSH,
     END_SCOPES,
     BEGIN_STEPGUIDERS,
       AO_NONE,
@@ -610,6 +611,7 @@ enum {
     MENU_BOOKMARKS_SET_AT_STAR,
     MENU_BOOKMARKS_CLEAR_ALL,
     MENU_STARCROSS_TEST,
+    MENU_COORDS
 };
 
 enum {

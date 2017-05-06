@@ -48,7 +48,7 @@ wxDialog(pFrame, wxID_ANY, _T("About ") APPNAME, wxDefaultPosition, wxDefaultSiz
 
     wxBoxSizer *pSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    #include "icons/phd2_64.png.h"
+    #include "icons/logocrao.h"
     wxBitmap phd2(wxBITMAP_PNG_FROM_DATA(phd2_64));
     wxStaticBitmap *pImage = new wxStaticBitmap(this, wxID_ANY, phd2);
 
@@ -56,8 +56,9 @@ wxDialog(pFrame, wxID_ANY, _T("About ") APPNAME, wxDefaultPosition, wxDefaultSiz
     wxMemoryFSHandler::AddFile("about.html", wxString::Format(
         "<html><body>"
         "<h3>%s %s</h3>"
-        "<a href=\"http://openphdguiding.org\">PHD2 home page - openphdguiding.org</a><br>"
-        "<a href=\"https://github.com/OpenPHDGuiding\">PHD2 open source project page</a><br><br>"
+        "<h4>Crimean astrophysical observatory edition</h4><br><br>"
+        "Version provided by Oleg Kutkov (kutkov.o@yandex.ru), Crimean astrophysical observatory, 2017<br><br>"
+        "Original PHD2 developers team:<br>"
         "<font size=\"2\">"
         "Credits:<br>"
         "<table>"

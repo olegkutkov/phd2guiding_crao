@@ -1,5 +1,5 @@
 /*
- *  scope_ztsh
+ *  scope_ztsh_coords
  *  PHD Guiding
  *
  *  Module for ZTSH autogude system, Crimean astrophysical observatory
@@ -33,40 +33,38 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifdef  GUIDE_ZTSH
 
-#include <vector>
+#include <string>
 
-class ZtshHwComm;
-class ScopeZtshPosition;
-
-class ScopeZTSH : public Scope {
+class ScopeZtshPosition
+{
 public:
-	ScopeZTSH();
-	~ScopeZTSH();
+	ScopeZtshPosition();
+	~ScopeZtshPosition();
 
-	bool     Connect(void);
-    bool     Disconnect(void);
-    bool     HasSetupDialog(void) const;
-    void     SetupDialog();
+	bool Connect(std::string host, int port);
+	bool Disconnect();
 
-    bool     CanReportPosition(void);
-    double   GetDeclination(void);
-    bool     GetGuideRates(double *pRAGuideRate, double *pDecGuideRate);
-    bool     GetCoordinates(double *ra, double *dec, double *siderealTime);
-    bool     GetSiteLatLong(double *latitude, double *longitude);
+	std::string GetErrorText();
 
-    MOVE_RESULT Guide(GUIDE_DIRECTION direction, int duration);
-
-    bool   CanPulseGuide();
+	void GetCoordsAndSpeed(double &ha, double &ra, double &dec, double &ra_speed, double &dec_speed);
 
 private:
-	ZtshHwComm *hwcomm;
-	ScopeZtshPosition *scope_pos;
-	void DisplayMoveError(std::string dir);
+	char SocketReadByte();
+	int Read7BitEncodedInt();
+	std::string ReadString();
+	short ReadInt16();
+	int ReadInt32();
+	long ReadInt64();
+	float ReadFloat32();
+	double ReadFloat64();
+	bool ReadBool();
+	void SockWriteByte(char byte);
+	void Write7BitEncodedInt(int int32);
+	void WriteString(std::string str);
 
-	void EnumerateSerialDevices(std::vector<wxString>& devices);
+	int sock;
+	std::string instrument_name;
+	std::string last_error;
 };
-
-#endif
 
