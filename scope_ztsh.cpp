@@ -1,5 +1,5 @@
 /*
- *  scope_INDI.cpp
+ *  scope_ztsh.cpp
  *  PHD Guiding
  *
  *  Copyright (c) 2017 Oleg Kutkov
