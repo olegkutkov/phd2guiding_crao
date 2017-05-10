@@ -144,6 +144,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_CLOSE(MyFrame::OnClose)
     EVT_THREAD(MYFRAME_WORKER_THREAD_EXPOSE_COMPLETE, MyFrame::OnExposeComplete)
     EVT_THREAD(MYFRAME_WORKER_THREAD_MOVE_COMPLETE, MyFrame::OnMoveComplete)
+    EVT_THREAD(MYFRAME_WORKER_THREAD_COORDS_UPDATE, MyFrame::OnCoordsUpdate)
 
     EVT_COMMAND(wxID_ANY, REQUEST_EXPOSURE_EVENT, MyFrame::OnRequestExposure)
     EVT_COMMAND(wxID_ANY, WXMESSAGEBOX_PROXY_EVENT, MyFrame::OnMessageBoxProxy)
@@ -1555,6 +1556,13 @@ void MyFrame::ScheduleCalibrationMove(Mount *mount, const GUIDE_DIRECTION direct
 
     assert(m_pPrimaryWorkerThread);
     m_pPrimaryWorkerThread->EnqueueWorkerThreadMoveRequest(mount, direction, duration);
+}
+
+void MyFrame::ScheduleCoordsUpdate(double ha, double ra, double dec, double rasp, double decsp)
+{
+	wxCriticalSectionLocker lock(m_CSpWorkerThread);
+
+	m_pPrimaryWorkerThread->EnqueWorkerThreadPositionRequest(ha, ra, dec, rasp, decsp);
 }
 
 void MyFrame::StartCapturing()

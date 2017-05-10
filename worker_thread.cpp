@@ -54,7 +54,7 @@ void WorkerThread::EnqueueMessage(const WORKER_THREAD_REQUEST& message)
 {
     wxMessageQueueError queueError;
 
-    if (message.request == REQUEST_EXPOSE)
+    if (message.request == REQUEST_EXPOSE || message.request == REQUEST_POS)
     {
         queueError = m_lowPriorityQueue.Post(message);
     }
@@ -333,6 +333,35 @@ void WorkerThread::SendWorkerThreadMoveComplete(Mount *mount, Mount::MOVE_RESULT
     wxQueueEvent(m_pFrame, event);
 }
 
+/*************      Coords       **************************/
+
+void WorkerThread::EnqueWorkerThreadPositionRequest(double ha, double ra, double dec, double rasp, double decsp)
+{
+    m_interruptRequested &= ~INT_STOP;
+
+    WORKER_THREAD_REQUEST message;
+    memset(&message, 0, sizeof(message));
+
+    Debug.Write(wxString::Format("Enqueuing Telescope coords update request \n"));
+
+    message.request                   = REQUEST_POS;
+    message.args.pos.pos_ha           = ha;
+    message.args.pos.pos_ra           = ra;
+    message.args.pos.pos_dec          = dec;
+    message.args.pos.pos_ra_speed     = rasp;
+    message.args.pos.pos_dec_speed    = decsp;
+
+    EnqueueMessage(message);
+}
+
+void WorkerThread::SendWorkerThreadCoordsUpdate(POSITION_REQUEST *data)
+{
+    wxThreadEvent *event = new wxThreadEvent(wxEVT_THREAD, MYFRAME_WORKER_THREAD_COORDS_UPDATE);
+    event->SetInt(1);
+    event->SetPayload<POSITION_REQUEST *>(data);
+    wxQueueEvent(m_pFrame, event);
+}
+
 /*
  * entry point for the background thread
  */
@@ -399,6 +428,10 @@ wxThread::ExitCode WorkerThread::Entry()
                 SendWorkerThreadMoveComplete(message.args.move.pMount, moveResult);
                 break;
             }
+
+            case REQUEST_POS:
+                SendWorkerThreadCoordsUpdate(&message.args.pos);
+                break;
 
             default:
                 Debug.Write(wxString::Format("worker thread servicing unknown request %d\n", message.request));

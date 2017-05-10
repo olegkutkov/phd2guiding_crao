@@ -78,6 +78,17 @@ struct MOVE_REQUEST
     wxSemaphore       *pSemaphore;
 };
 
+struct POSITION_REQUEST
+{
+	double pos_ha;
+	double pos_ra;
+	double pos_dec;
+	double pos_ra_speed;
+	double pos_dec_speed;
+	bool pos_failed;
+	std::string error_text;
+};
+
 class WorkerThread : public wxThread
 {
     // types and routines for the server->worker message queue
@@ -87,6 +98,7 @@ class WorkerThread : public wxThread
         REQUEST_TERMINATE,
         REQUEST_EXPOSE,
         REQUEST_MOVE,
+        REQUEST_POS		
     };
 
     /*
@@ -100,6 +112,7 @@ class WorkerThread : public wxThread
         {
             EXPOSE_REQUEST expose;
             MOVE_REQUEST move;
+            POSITION_REQUEST pos;
         } args;
     };
 
@@ -186,6 +199,12 @@ protected:
     Mount::MOVE_RESULT HandleMove(MOVE_REQUEST *pArgs);
     void SendWorkerThreadMoveComplete(Mount *pMount, Mount::MOVE_RESULT moveResult);
     // in the frame class: void MyFrame::OnWorkerThreadGuideComplete(wxThreadEvent& event);
+
+public:
+    void EnqueWorkerThreadPositionRequest(double ha, double ra, double dec, double rasp, double decsp);
+
+protected:
+    void SendWorkerThreadCoordsUpdate(POSITION_REQUEST *data);
 
     void EnqueueMessage(const WORKER_THREAD_REQUEST& message);
 };
