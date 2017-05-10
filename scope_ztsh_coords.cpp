@@ -33,14 +33,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
+/**
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
-
+*/
 #include "scope_ztsh_coords.h"
 
 ScopeZtshPosition::ScopeZtshPosition()
@@ -55,7 +55,7 @@ ScopeZtshPosition::~ScopeZtshPosition()
 
 bool ScopeZtshPosition::Connect(std::string host, int port)
 {
-	struct sockaddr_in server;
+/*	struct sockaddr_in server;
  
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 
@@ -110,7 +110,7 @@ bool ScopeZtshPosition::Connect(std::string host, int port)
 			instrument_name = ReadString();
 		}
 	}
-
+*/
 	return true;
 }
 
@@ -174,7 +174,7 @@ char ScopeZtshPosition::SocketReadByte()
 {
 	char byte;
 
-	recv(sock, &byte, sizeof(byte), 0);
+	//recv(sock, &byte, sizeof(byte), 0);
 
 	return byte;
 }
@@ -199,7 +199,7 @@ std::string ScopeZtshPosition::ReadString()
 	char *buf = new char[bytes_count + 1];
 	memset(buf, 0, bytes_count);
 
-	recv(sock, (void*)buf, bytes_count, 0);
+	//recv(sock, (void*)buf, bytes_count, 0);
 
 	buf[bytes_count] = '\0';
 
@@ -213,7 +213,7 @@ std::string ScopeZtshPosition::ReadString()
 short ScopeZtshPosition::ReadInt16()
 {
 	short res;
-	recv(sock, &res, sizeof(res), 0);
+	//recv(sock, &res, sizeof(res), 0);
 
 	return res;
 }
@@ -221,7 +221,7 @@ short ScopeZtshPosition::ReadInt16()
 int ScopeZtshPosition::ReadInt32()
 {
 	int res;
-	recv(sock, &res, sizeof(res), 0);
+	//recv(sock, &res, sizeof(res), 0);
 
 	return res;
 }
@@ -229,7 +229,7 @@ int ScopeZtshPosition::ReadInt32()
 long ScopeZtshPosition::ReadInt64()
 {
 	long res;
-	recv(sock, &res, sizeof(res), 0);
+	//recv(sock, &res, sizeof(res), 0);
 
 	return res;
 }
@@ -237,7 +237,7 @@ long ScopeZtshPosition::ReadInt64()
 float ScopeZtshPosition::ReadFloat32()
 {
 	float res;
-	recv(sock, &res, sizeof(res), 0);
+	//recv(sock, &res, sizeof(res), 0);
 
 	return res;
 }
@@ -245,7 +245,7 @@ float ScopeZtshPosition::ReadFloat32()
 double ScopeZtshPosition::ReadFloat64()
 {
 	unsigned char *buff = new unsigned char[8];
-	recv(sock, buff, 8, 0);
+	//recv(sock, buff, 8, 0);
 	double res =  *(double*)buff;
 	delete buff;
 
@@ -259,7 +259,7 @@ bool ScopeZtshPosition::ReadBool()
 
 void ScopeZtshPosition::SockWriteByte(char byte)
 {
-	send(sock, &byte, 1, 0);
+	//send(sock, &byte, 1, 0);
 }
 
 void ScopeZtshPosition::Write7BitEncodedInt(int int32)
@@ -277,6 +277,6 @@ void ScopeZtshPosition::WriteString(std::string str)
 
 	Write7BitEncodedInt(str_len);
 
-	send(sock, (void*)str.c_str(), str_len, 0);
+	//send(sock, (void*)str.c_str(), str_len, 0);
 }
 

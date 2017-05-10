@@ -135,7 +135,7 @@ bool ScopeZTSH::Connect(void)
 
 	if (!res) {
 		wxMessageBox(hwcomm->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
-//		return true;
+		return true;
 	}
 
 	Scope::Connect();
