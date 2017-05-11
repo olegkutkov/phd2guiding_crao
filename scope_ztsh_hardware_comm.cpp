@@ -35,13 +35,14 @@
  */
 
 #include <errno.h>
-#ifdef LINUX
-#include <unistd.h>
-#endif
+
 #ifdef WINDOWS
 #include <windows.h>
-#endif
 #include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <iomanip>
 #include <sstream>
 #include <string.h>
@@ -66,11 +67,10 @@ static uint16_t dex_inverter_data[DEC_INVERTER_DATA_LEN];
 
 void mySleep(int sleepMs)
 {
-#ifdef LINUX
-	usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
-#endif
 #ifdef WINDOWS
 	Sleep(sleepMs);
+#else
+	usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
 #endif
 }
 
@@ -215,9 +215,9 @@ bool ZtshHwComm::AdamCmd(const uint8_t channel, bool enable)
 	adam_data_buf[6] = (uint8_t) enable + ASCII_NUM_START;
 	adam_data_buf[7] = ADAM_ASCII_COMMAND_END;
 
-	ssize_t written = write(modbus_get_socket(ctx), adam_data_buf, adam_data_buf_len);
+	ssize_t written = write(modbus_get_serial(ctx), adam_data_buf, adam_data_buf_len);
 
-	mySleep(250000);
+	mySleep(250);
 
 	modbus_flush(ctx);
 
