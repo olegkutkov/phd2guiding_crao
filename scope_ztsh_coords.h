@@ -35,8 +35,9 @@
  */
 
 #include <string>
+#include <wx/thread.h>
 
-class ScopeZtshPosition
+class ScopeZtshPosition : public wxThread
 {
 public:
 	ScopeZtshPosition();
@@ -50,6 +51,8 @@ public:
 	void GetCoordsAndSpeed(double &ha, double &ra, double &dec, double &ra_speed, double &dec_speed);
 
 private:
+	virtual void *Entry();
+
 	char SocketReadByte();
 	int Read7BitEncodedInt();
 	std::string ReadString();

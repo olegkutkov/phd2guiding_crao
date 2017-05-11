@@ -40,17 +40,28 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+#include <iostream>
 
 #include "scope_ztsh_coords.h"
 
 ScopeZtshPosition::ScopeZtshPosition()
-	: sock (0)
+	: wxThread(wxTHREAD_JOINABLE)
+	, sock (0)
 {
+	std::cout << "11" << std::endl;
 }
 
 ScopeZtshPosition::~ScopeZtshPosition()
 {
 	Disconnect();
+}
+
+wxThread::ExitCode ScopeZtshPosition::Entry()
+{
+	while (1) {
+		std::cout << "thread cycle" << std::endl;
+		sleep(2);
+	}
 }
 
 bool ScopeZtshPosition::Connect(std::string host, int port)

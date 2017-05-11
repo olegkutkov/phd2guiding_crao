@@ -60,6 +60,8 @@ ScopeZTSH::ScopeZTSH()
 		wxMessageBox(_("Failed to allocate memory for coordinates server object"), _("Error"), wxOK | wxICON_ERROR);
 	}
 
+//	scope_pos->Create();
+
 //	if (!scope_pos->Connect("10.1.1.142", 16050)) {
 //		wxMessageBox(scope_pos->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
 //	}
