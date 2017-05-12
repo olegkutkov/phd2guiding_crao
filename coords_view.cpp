@@ -128,10 +128,10 @@ void CoordsView::OnPaint(wxPaintEvent& WXUNUSED(evt))
 
 
 	dc.DrawText("RA SPEED: ", 10, 85);
-	dc.DrawText(wxString::Format(wxT("%.2f arcsec/sec"), curr_ra_sp), 105, 85);
+	dc.DrawText(wxString::Format(wxT("%.2f arcsec/sec"), curr_ra_sp), 120, 85);
 
 	dc.DrawText("DEC SPEED: ", 10, 115);
-	dc.DrawText(wxString::Format(wxT("%.2f arcsec/sec"), curr_dec_sp), 105, 115);
+	dc.DrawText(wxString::Format(wxT("%.2f arcsec/sec"), curr_dec_sp), 120, 115);
 }
 
 
