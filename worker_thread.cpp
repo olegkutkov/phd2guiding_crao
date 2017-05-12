@@ -54,7 +54,7 @@ void WorkerThread::EnqueueMessage(const WORKER_THREAD_REQUEST& message)
 {
     wxMessageQueueError queueError;
 
-    if (message.request == REQUEST_EXPOSE || message.request == REQUEST_POS)
+    if (message.request == REQUEST_EXPOSE)
     {
         queueError = m_lowPriorityQueue.Post(message);
     }
