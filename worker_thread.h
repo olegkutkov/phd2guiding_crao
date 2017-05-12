@@ -86,7 +86,7 @@ struct POSITION_REQUEST
 	double pos_ra_speed;
 	double pos_dec_speed;
 	bool pos_failed;
-	std::string error_text;
+//	std::string error_text;
 };
 
 class WorkerThread : public wxThread
