@@ -60,17 +60,20 @@ ScopeZTSH::ScopeZTSH()
 		wxMessageBox(_("Failed to allocate memory for coordinates server object"), _("Error"), wxOK | wxICON_ERROR);
 	}
 
-//	scope_pos->Create();
+	if (scope_pos->Create() != wxTHREAD_NO_ERROR ) {
+		wxMessageBox(_("Failed to create ScopeZtshPosition thread!"), _("Error"), wxOK | wxICON_ERROR);
+	}
 
-//	if (!scope_pos->Connect("10.1.1.142", 16050)) {
-//		wxMessageBox(scope_pos->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
-//	}
+	scope_pos->Run();
 }
 
 ScopeZTSH::~ScopeZTSH()
 {
 	if (scope_pos) {
+		scope_pos->Delete();
+
 		delete scope_pos;
+
 		scope_pos = NULL;
 	}
 }
