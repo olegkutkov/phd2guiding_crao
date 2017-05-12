@@ -71,6 +71,18 @@ void CoordsView::SetState(bool is_active)
         Refresh();
 }
 
+inline double frac(const double& x)
+{
+     return x - floor(x);
+}
+
+inline void degree_to_coord(const double deg, int &h, int &m, int &s)
+{
+	h = deg / 15;
+	m = abs((int)(frac(deg / 15) * 60));
+	s = abs((int)(frac(frac(deg / 15) * 60) * 60));
+}
+
 void CoordsView::OnPaint(wxPaintEvent& WXUNUSED(evt))
 {
 	wxAutoBufferedPaintDC dc(this);
@@ -96,12 +108,30 @@ void CoordsView::OnPaint(wxPaintEvent& WXUNUSED(evt))
 	dc.SetTextForeground(*wxWHITE);
 
 	dc.DrawText("t: ", 10, 5);
-	
+	dc.DrawText(wxString::Format(wxT("%3.2f"), curr_ha), 55, 5);
+
 
 	dc.DrawText("RA: ", 10, 30);
+
+	int ra_h, ra_m, ra_s;
+	degree_to_coord(curr_ra, ra_h, ra_m, ra_s);
+
+	dc.DrawText(wxString::Format(wxT("%02i h  %02i m  %02i s"), ra_h, ra_m, ra_s), 55, 30);
+
+
 	dc.DrawText("DEC: ", 10, 55);
-	dc.DrawText("RA SPEED: ", 10, 80);
-	dc.DrawText("DEC SPEED: ", 10, 110);
+
+	int dec_h, dec_m, dec_s;
+	degree_to_coord(curr_dec, dec_h, dec_m, dec_s);
+
+	dc.DrawText(wxString::Format(wxT("%02i h  %02i m  %02i s"), dec_h, dec_m, dec_s), 55, 55);
+
+
+	dc.DrawText("RA SPEED: ", 10, 85);
+	dc.DrawText(wxString::Format(wxT("%.2f arcsec/sec"), curr_ra_sp), 105, 85);
+
+	dc.DrawText("DEC SPEED: ", 10, 115);
+	dc.DrawText(wxString::Format(wxT("%.2f arcsec/sec"), curr_dec_sp), 105, 115);
 }
 
 
