@@ -170,7 +170,7 @@ static const double DefaultMassChangeThreshold = 0.5;
 enum {
     MIN_SEARCH_REGION = 7,
     DEFAULT_SEARCH_REGION = 15,
-    MAX_SEARCH_REGION = 50,
+    MAX_SEARCH_REGION = 200,//50,
 };
 
 BEGIN_EVENT_TABLE(GuiderOneStar, Guider)
