@@ -50,6 +50,11 @@ ScopeZtshPosition::ScopeZtshPosition()
 	: wxThread(wxTHREAD_JOINABLE)
 	, sock (0)
 	, thread_done (false)
+	, last_ha (0)
+	, last_ra (0)
+	, last_dec (0)
+	, last_ra_speed (0)
+	, last_dec_speed (0)
 {
 }
 
@@ -64,9 +69,12 @@ void ScopeZtshPosition::OnExit()
 
 wxThread::ExitCode ScopeZtshPosition::Entry()
 {
-	double ha = 22.9;
-	double ra = 253.3;
-	double dec = 13.4596;
+	last_ha = 22.9;
+	last_ra = 253.3;
+	last_dec = 13.4596;
+	last_ra_speed = 14.7;
+	last_dec_speed = 0;
+
 /*
 	while (!thread_done) {
 		thread_done |= TestDestroy();
@@ -79,11 +87,21 @@ wxThread::ExitCode ScopeZtshPosition::Entry()
 	thread_done = TestDestroy();
 
 	while (!thread_done) {
-		usleep(500000);
+		UpdateCoordsAndSpeed();
 
-		pFrame->ScheduleCoordsUpdate(ha += 0.1, ra += 0.1, dec += 0.1, rand(), rand());
+		if (pFrame) {
+			////
+			last_ha += 0.1;
+			last_ra += 0.1;
+			last_dec += 0.1;
+			////
+
+			pFrame->ScheduleCoordsUpdate(last_ha, last_ra, last_dec, last_ra_speed, last_dec_speed);
+		}
 
 		thread_done |= TestDestroy();
+
+		usleep(500000);
 	}
 
 	Disconnect();
@@ -166,15 +184,18 @@ bool ScopeZtshPosition::Disconnect()
 	return true;
 }
 
-void ScopeZtshPosition::GetCoordsAndSpeed(double &ha, double &ra, double &dec, double &ra_speed, double &dec_speed)
+void ScopeZtshPosition::GetScopePosAndSpeed(double &ha, double &ra, double &dec, double &rasp, double &decsp)
+{
+	ha = last_ha;
+	ra = last_ra;
+	dec = last_dec;
+	rasp = last_ra_speed;
+	decsp = last_dec_speed;
+}
+
+void ScopeZtshPosition::UpdateCoordsAndSpeed()
 {
 	if (!sock) {
-		ha = 0;
-		ra = 0;
-		dec = 0;
-		ra_speed = 0;
-		dec_speed = 0;
-
 		return;
 	}
 
@@ -190,15 +211,15 @@ void ScopeZtshPosition::GetCoordsAndSpeed(double &ha, double &ra, double &dec, d
 		srv_answer = ReadString();
 
 		if (srv_answer == "<HourAngleDeg>:[float64]") {
-			ha = ReadFloat64();
+			last_ha = ReadFloat64();
 		} else if (srv_answer == "<RightAscensionDeg>:[float64]") {
-			ra = ReadFloat64();
+			last_ra = ReadFloat64();
 		} else if (srv_answer == "<DeclinationDeg>:[float64]") {
-			dec = (ReadFloat64());
+			last_dec = (ReadFloat64());
 		} else if (srv_answer == "<HourAngleSpeedArcSecPerSec>:[float64]") {
-			ra_speed = ReadFloat64();
+			last_ra_speed = ReadFloat64();
 		} else if (srv_answer == "<DeclinationSpeedArcSecPerSec>:[float64]") {
-			dec_speed = ReadFloat64();
+			last_dec_speed = ReadFloat64();
 		}
 	}
 }
