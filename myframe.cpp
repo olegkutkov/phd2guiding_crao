@@ -1560,6 +1560,10 @@ void MyFrame::ScheduleCalibrationMove(Mount *mount, const GUIDE_DIRECTION direct
 
 void MyFrame::ScheduleCoordsUpdate(double ha, double ra, double dec, double rasp, double decsp)
 {
+	if (!m_pPrimaryWorkerThread) {
+		return;
+	} 
+
 	wxCriticalSectionLocker lock(m_CSpWorkerThread);
 
 	m_pPrimaryWorkerThread->EnqueWorkerThreadPositionRequest(ha, ra, dec, rasp, decsp);
