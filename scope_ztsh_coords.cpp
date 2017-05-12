@@ -36,19 +36,21 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
 #include <iostream>
 
+#include "phd.h"
 #include "scope_ztsh_coords.h"
 
 ScopeZtshPosition::ScopeZtshPosition()
 	: wxThread(wxTHREAD_JOINABLE)
 	, sock (0)
+	, thread_done (false)
 {
-	std::cout << "11" << std::endl;
 }
 
 ScopeZtshPosition::~ScopeZtshPosition()
@@ -56,17 +58,42 @@ ScopeZtshPosition::~ScopeZtshPosition()
 	Disconnect();
 }
 
+void ScopeZtshPosition::OnExit()
+{
+}
+
 wxThread::ExitCode ScopeZtshPosition::Entry()
 {
-	while (1) {
-		std::cout << "thread cycle" << std::endl;
-		sleep(2);
+	double ha = 22.9;
+	double ra = 253.3;
+	double dec = 13.4596;
+/*
+	while (!thread_done) {
+		thread_done |= TestDestroy();
+
+		if (Connect("10.1.1.142", 16050)) {
+			break;
+		}
 	}
+*/
+	thread_done = TestDestroy();
+
+	while (!thread_done) {
+		usleep(500000);
+
+		pFrame->ScheduleCoordsUpdate(ha += 0.1, ra += 0.1, dec += 0.1, rand(), rand());
+
+		thread_done |= TestDestroy();
+	}
+
+	Disconnect();
 }
 
 bool ScopeZtshPosition::Connect(std::string host, int port)
 {
 	struct sockaddr_in server;
+
+	std::cout << "Connecting to " << host << ":" << port << std::endl;
  
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 
@@ -79,7 +106,7 @@ bool ScopeZtshPosition::Connect(std::string host, int port)
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 
-	struct timeval tv = {5, 0};
+	struct timeval tv = {2, 0};
 	setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(tv));
 	setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *) &tv, sizeof(tv));
  
@@ -127,7 +154,7 @@ bool ScopeZtshPosition::Connect(std::string host, int port)
 
 bool ScopeZtshPosition::Disconnect()
 {
-	if (!sock) {
+	if (sock <= 0) {
 		return true;
 	}
 

@@ -43,14 +43,16 @@ public:
 	ScopeZtshPosition();
 	~ScopeZtshPosition();
 
-	bool Connect(std::string host, int port);
-	bool Disconnect();
+	void OnExit();
 
 	std::string GetErrorText();
 
 	void GetCoordsAndSpeed(double &ha, double &ra, double &dec, double &ra_speed, double &dec_speed);
 
 private:
+	bool Connect(std::string host, int port);
+	bool Disconnect();
+
 	virtual void *Entry();
 
 	char SocketReadByte();
@@ -67,6 +69,7 @@ private:
 	void WriteString(std::string str);
 
 	int sock;
+	bool thread_done;
 	std::string instrument_name;
 	std::string last_error;
 };
