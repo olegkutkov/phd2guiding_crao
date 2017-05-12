@@ -140,7 +140,7 @@ bool ScopeZTSH::Connect(void)
 
 	if (!res) {
 		wxMessageBox(hwcomm->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
-		return true;
+//		return true;
 	}
 
 	Scope::Connect();
@@ -365,13 +365,13 @@ Mount::MOVE_RESULT ScopeZTSH::Guide(GUIDE_DIRECTION direction, int duration)
 
 bool ScopeZTSH::CanReportPosition(void)
 {
-	return false;
+	return true;
 }
 
 double ScopeZTSH::GetDeclination(void)
 {
 	double ha, ra, dec, ra_speed, dec_speed;
-	scope_pos->GetCoordsAndSpeed(ha, ra, dec, ra_speed, dec_speed);
+	scope_pos->GetScopePosAndSpeed(ha, ra, dec, ra_speed, dec_speed);
 
 	return radians(dec);
 }
@@ -384,12 +384,11 @@ bool ScopeZTSH::GetGuideRates(double *pRAGuideRate, double *pDecGuideRate)
 
 bool ScopeZTSH::GetCoordinates(double *ra, double *dec, double *siderealTime)
 {
-//	*ra = 253.3;
-//	*dec = 13.4596;
-//	*siderealTime = 22.29;
-
 	double ha_, ra_, dec_, ra_speed_, dec_speed_;
-	scope_pos->GetCoordsAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
+	scope_pos->GetScopePosAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
+
+	*ra = 0;
+	*dec = dec_;
 
 	return false;
 }
