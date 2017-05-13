@@ -35,7 +35,14 @@
  */
 
 #include <errno.h>
+
+#ifdef WINDOWS
+#include <windows.h>
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+
 #include <iomanip>
 #include <sstream>
 #include <string.h>
@@ -57,6 +64,15 @@
 #define ADAM_CHANNEL_DELTA_MINUS_RELAY 2
 
 static uint16_t dex_inverter_data[DEC_INVERTER_DATA_LEN];
+
+void mySleep(int sleepMs)
+{
+#ifdef WINDOWS
+	Sleep(sleepMs);
+#else
+	usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+#endif
+}
 
 ZtshHwComm::ZtshHwComm()
 	: ctx(NULL)
@@ -187,7 +203,7 @@ bool ZtshHwComm::StopDecAxis()
 
 bool ZtshHwComm::AdamCmd(const uint8_t channel, bool enable)
 {
-	uint8_t adam_data_buf_len = 8;
+	const uint8_t adam_data_buf_len = 8;
 	uint8_t adam_data_buf[adam_data_buf_len];
 
 	adam_data_buf[0] = ADAM_ASCII_COMMAND_START;
@@ -199,9 +215,9 @@ bool ZtshHwComm::AdamCmd(const uint8_t channel, bool enable)
 	adam_data_buf[6] = (uint8_t) enable + ASCII_NUM_START;
 	adam_data_buf[7] = ADAM_ASCII_COMMAND_END;
 
-	ssize_t written = write(modbus_get_socket(ctx), adam_data_buf, adam_data_buf_len);
+	ssize_t written = write(modbus_get_serial(ctx), adam_data_buf, adam_data_buf_len);
 
-	usleep(250000);
+	mySleep(250);
 
 	modbus_flush(ctx);
 

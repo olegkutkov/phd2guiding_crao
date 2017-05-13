@@ -1,5 +1,5 @@
 /*
- *  scope_INDI.cpp
+ *  scope_ztsh.cpp
  *  PHD Guiding
  *
  *  Copyright (c) 2017 Oleg Kutkov
@@ -38,12 +38,14 @@
 
 #include <stdio.h>
 
+#if defined (__linux__)
 #include <stdio.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#endif
 
 
 #ifdef GUIDE_ZTSH
@@ -58,15 +60,20 @@ ScopeZTSH::ScopeZTSH()
 		wxMessageBox(_("Failed to allocate memory for coordinates server object"), _("Error"), wxOK | wxICON_ERROR);
 	}
 
-//	if (!scope_pos->Connect("10.1.1.142", 16050)) {
-//		wxMessageBox(scope_pos->GetErrorText().c_str(), _("Error"), wxOK | wxICON_ERROR);
-//	}
+	if (scope_pos->Create() != wxTHREAD_NO_ERROR ) {
+		wxMessageBox(_("Failed to create ScopeZtshPosition thread!"), _("Error"), wxOK | wxICON_ERROR);
+	}
+
+	scope_pos->Run();
 }
 
 ScopeZTSH::~ScopeZTSH()
 {
 	if (scope_pos) {
+		scope_pos->Delete();
+
 		delete scope_pos;
+
 		scope_pos = NULL;
 	}
 }
@@ -200,7 +207,15 @@ void ScopeZTSH::EnumerateSerialDevices(std::vector<wxString>& devices)
 	closedir(ttydir);
 
 #elif defined (__WINDOWS__)
-	/// TODO: implement me!
+	SerialPort* sport = SerialPort::SerialPortFactory();
+
+	wxArrayString res = sport->GetSerialPortList();
+
+	for (size_t i = 0; i < res.size(); ++i) {
+		devices.push_back(res[i].mb_str());
+	}
+
+	delete sport;
 #endif
 }
 
@@ -350,13 +365,13 @@ Mount::MOVE_RESULT ScopeZTSH::Guide(GUIDE_DIRECTION direction, int duration)
 
 bool ScopeZTSH::CanReportPosition(void)
 {
-	return false;
+	return true;
 }
 
 double ScopeZTSH::GetDeclination(void)
 {
 	double ha, ra, dec, ra_speed, dec_speed;
-	scope_pos->GetCoordsAndSpeed(ha, ra, dec, ra_speed, dec_speed);
+	scope_pos->GetScopePosAndSpeed(ha, ra, dec, ra_speed, dec_speed);
 
 	return radians(dec);
 }
@@ -369,12 +384,11 @@ bool ScopeZTSH::GetGuideRates(double *pRAGuideRate, double *pDecGuideRate)
 
 bool ScopeZTSH::GetCoordinates(double *ra, double *dec, double *siderealTime)
 {
-//	*ra = 253.3;
-//	*dec = 13.4596;
-//	*siderealTime = 22.29;
-
 	double ha_, ra_, dec_, ra_speed_, dec_speed_;
-	scope_pos->GetCoordsAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
+	scope_pos->GetScopePosAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
+
+	*ra = 0;
+	*dec = dec_;
 
 	return false;
 }

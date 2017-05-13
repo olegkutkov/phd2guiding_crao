@@ -461,6 +461,12 @@ void MyFrame::OnMoveComplete(wxThreadEvent& event)
     }
 }
 
+void MyFrame::OnCoordsUpdate(wxThreadEvent& event)
+{
+    POSITION_REQUEST *coords = event.GetPayload<POSITION_REQUEST *>();
+    pFrame->pCoordsView->UpdateData(coords->pos_ha, coords->pos_ra, coords->pos_dec, coords->pos_ra_speed, coords->pos_dec_speed);
+}
+
 void MyFrame::OnButtonStop(wxCommandEvent& WXUNUSED(event))
 {
     Debug.Write("Stop button clicked\n");

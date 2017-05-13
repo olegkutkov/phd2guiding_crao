@@ -67,7 +67,7 @@
 #include <math.h>
 #include <stdarg.h>
 
-#define APPNAME _T("PHD2 Guiding")
+#define APPNAME _T("PHD2 Guiding - CrAO")
 #define PHDVERSION _T("2.6.3")
 #define PHDSUBVER _T("")
 #define FULLVER PHDVERSION PHDSUBVER

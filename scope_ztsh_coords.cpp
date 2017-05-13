@@ -36,15 +36,25 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+#include <iostream>
 
+#include "phd.h"
 #include "scope_ztsh_coords.h"
 
 ScopeZtshPosition::ScopeZtshPosition()
-	: sock (0)
+	: wxThread(wxTHREAD_JOINABLE)
+	, sock (0)
+	, thread_done (false)
+	, last_ha (0)
+	, last_ra (0)
+	, last_dec (0)
+	, last_ra_speed (0)
+	, last_dec_speed (0)
 {
 }
 
@@ -53,9 +63,55 @@ ScopeZtshPosition::~ScopeZtshPosition()
 	Disconnect();
 }
 
+void ScopeZtshPosition::OnExit()
+{
+}
+
+wxThread::ExitCode ScopeZtshPosition::Entry()
+{
+	last_ha = 22.9;
+	last_ra = 253.3;
+	last_dec = 13.4596;
+	last_ra_speed = 14.7;
+	last_dec_speed = 0;
+
+/*
+	while (!thread_done) {
+		thread_done |= TestDestroy();
+
+		if (Connect("10.1.1.142", 16050)) {
+			break;
+		}
+	}
+*/
+	thread_done = TestDestroy();
+
+	while (!thread_done) {
+		UpdateCoordsAndSpeed();
+
+		if (pFrame) {
+			////
+			last_ha += 0.1;
+			last_ra += 0.1;
+			last_dec += 0.1;
+			////
+
+			pFrame->ScheduleCoordsUpdate(last_ha, last_ra, last_dec, last_ra_speed, last_dec_speed);
+		}
+
+		thread_done |= TestDestroy();
+
+		usleep(500000);
+	}
+
+	Disconnect();
+}
+
 bool ScopeZtshPosition::Connect(std::string host, int port)
 {
 	struct sockaddr_in server;
+
+	std::cout << "Connecting to " << host << ":" << port << std::endl;
  
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 
@@ -68,7 +124,7 @@ bool ScopeZtshPosition::Connect(std::string host, int port)
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 
-	struct timeval tv = {5, 0};
+	struct timeval tv = {2, 0};
 	setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(tv));
 	setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *) &tv, sizeof(tv));
  
@@ -116,7 +172,7 @@ bool ScopeZtshPosition::Connect(std::string host, int port)
 
 bool ScopeZtshPosition::Disconnect()
 {
-	if (!sock) {
+	if (sock <= 0) {
 		return true;
 	}
 
@@ -128,15 +184,18 @@ bool ScopeZtshPosition::Disconnect()
 	return true;
 }
 
-void ScopeZtshPosition::GetCoordsAndSpeed(double &ha, double &ra, double &dec, double &ra_speed, double &dec_speed)
+void ScopeZtshPosition::GetScopePosAndSpeed(double &ha, double &ra, double &dec, double &rasp, double &decsp)
+{
+	ha = last_ha;
+	ra = last_ra;
+	dec = last_dec;
+	rasp = last_ra_speed;
+	decsp = last_dec_speed;
+}
+
+void ScopeZtshPosition::UpdateCoordsAndSpeed()
 {
 	if (!sock) {
-		ha = 0;
-		ra = 0;
-		dec = 0;
-		ra_speed = 0;
-		dec_speed = 0;
-
 		return;
 	}
 
@@ -152,15 +211,15 @@ void ScopeZtshPosition::GetCoordsAndSpeed(double &ha, double &ra, double &dec, d
 		srv_answer = ReadString();
 
 		if (srv_answer == "<HourAngleDeg>:[float64]") {
-			ha = ReadFloat64();
+			last_ha = ReadFloat64();
 		} else if (srv_answer == "<RightAscensionDeg>:[float64]") {
-			ra = ReadFloat64();
+			last_ra = ReadFloat64();
 		} else if (srv_answer == "<DeclinationDeg>:[float64]") {
-			dec = (ReadFloat64());
+			last_dec = (ReadFloat64());
 		} else if (srv_answer == "<HourAngleSpeedArcSecPerSec>:[float64]") {
-			ra_speed = ReadFloat64();
+			last_ra_speed = ReadFloat64();
 		} else if (srv_answer == "<DeclinationSpeedArcSecPerSec>:[float64]") {
-			dec_speed = ReadFloat64();
+			last_dec_speed = ReadFloat64();
 		}
 	}
 }

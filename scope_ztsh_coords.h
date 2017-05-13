@@ -35,21 +35,26 @@
  */
 
 #include <string>
+#include <wx/thread.h>
 
-class ScopeZtshPosition
+class ScopeZtshPosition : public wxThread
 {
 public:
 	ScopeZtshPosition();
 	~ScopeZtshPosition();
 
-	bool Connect(std::string host, int port);
-	bool Disconnect();
-
 	std::string GetErrorText();
 
-	void GetCoordsAndSpeed(double &ha, double &ra, double &dec, double &ra_speed, double &dec_speed);
+	void GetScopePosAndSpeed(double &ha, double &ra, double &dec, double &rasp, double &decsp);
 
 private:
+	bool Connect(std::string host, int port);
+	bool Disconnect();
+	void UpdateCoordsAndSpeed();
+
+	virtual void *Entry();
+	void OnExit();
+
 	char SocketReadByte();
 	int Read7BitEncodedInt();
 	std::string ReadString();
@@ -64,6 +69,13 @@ private:
 	void WriteString(std::string str);
 
 	int sock;
+	bool thread_done;
+	double last_ha;
+	double last_ra;
+	double last_dec;
+	double last_ra_speed;
+	double last_dec_speed;
+
 	std::string instrument_name;
 	std::string last_error;
 };

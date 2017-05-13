@@ -47,6 +47,7 @@ enum E_MYFRAME_WORKER_THREAD_MESSAGES
 {
     MYFRAME_WORKER_THREAD_EXPOSE_COMPLETE = wxID_HIGHEST+1,
     MYFRAME_WORKER_THREAD_MOVE_COMPLETE,
+    MYFRAME_WORKER_THREAD_COORDS_UPDATE
 };
 
 wxDECLARE_EVENT(REQUEST_EXPOSURE_EVENT, wxCommandEvent);
@@ -301,6 +302,7 @@ public:
     void OnExposeComplete(wxThreadEvent& evt);
     void OnExposeComplete(usImage *image, bool err);
     void OnMoveComplete(wxThreadEvent& evt);
+    void OnCoordsUpdate(wxThreadEvent& evt);
     void LoadProfileSettings(void);
     void UpdateTitle(void);
 
@@ -366,6 +368,8 @@ public:
     void SchedulePrimaryMove(Mount *pMount, const PHD_Point& vectorEndpoint, MountMoveType moveType);
     void ScheduleSecondaryMove(Mount *pMount, const PHD_Point& vectorEndpoint, MountMoveType moveType);
     void ScheduleCalibrationMove(Mount *pMount, const GUIDE_DIRECTION direction, int duration);
+
+    void ScheduleCoordsUpdate(double ha, double ra, double dec, double rasp, double decsp);
 
     void StartCapturing(void);
     void StopCapturing(void);
