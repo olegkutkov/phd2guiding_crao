@@ -197,14 +197,14 @@ ZtshConfig::ZtshConfig(wxWindow *parent) :
     gbs->Add(inv_dec_modbus_addr, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
     pos++;
 
-    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec low speed: ")),
-             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
+//    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec low speed: ")),
+//             POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
 
-    inv_dec_low_speed = new wxTextCtrl(this, wxID_ANY);
-    gbs->Add(inv_dec_low_speed, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
-    pos++;
+//    inv_dec_low_speed = new wxTextCtrl(this, wxID_ANY);
+//    gbs->Add(inv_dec_low_speed, POS(pos, 1), SPAN(1, 1), sizerTextFlags, border);
+//    pos++;
 
-    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec high speed: ")),
+    gbs->Add(new wxStaticText(this, wxID_ANY, _("Dec speed: ")),
              POS(pos, 0), SPAN(1, 1), sizerLabelFlags, border);
 
     inv_dec_high_speed = new wxTextCtrl(this, wxID_ANY);
@@ -308,10 +308,10 @@ void ZtshConfig::LoadSettings()
 	inv_dec_modbus_addr->WriteText(str);
 	memset(str, 0, sizeof(str));
 
-	sprintf(str, "%d", curr_inv_dec_low_speed);
-	inv_dec_low_speed->Clear();
-	inv_dec_low_speed->WriteText(str);
-	memset(str, 0, sizeof(str));
+//	sprintf(str, "%d", curr_inv_dec_low_speed);
+//	inv_dec_low_speed->Clear();
+//	inv_dec_low_speed->WriteText(str);
+//	memset(str, 0, sizeof(str));
 
 	sprintf(str, "%d", curr_inv_dec_high_speed);
 	inv_dec_high_speed->Clear();
@@ -347,7 +347,7 @@ void ZtshConfig::SaveSettings()
 	curr_inv_hour_norm_speed = wxAtoi(inv_hour_norm_speed->GetLineText(0));
 	curr_inv_hour_high_speed = wxAtoi(inv_hour_high_speed->GetLineText(0));
 	curr_inv_dec_modbus_addr = wxAtoi(inv_dec_modbus_addr->GetLineText(0));
-	curr_inv_dec_low_speed = wxAtoi(inv_dec_low_speed->GetLineText(0));
+//	curr_inv_dec_low_speed = wxAtoi(inv_dec_low_speed->GetLineText(0));
 	curr_inv_dec_high_speed = wxAtoi(inv_dec_high_speed->GetLineText(0));
 	curr_debug_mode = debug_checkbox->IsChecked();
 	curr_precovery_mode = precovery_checkbox->IsChecked();
