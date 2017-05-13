@@ -100,11 +100,11 @@ void IndiGui::newText(ITextVectorProperty *tvp)
 void IndiGui::newMessage(INDI::BaseDevice *dp, int messageID)
 {
    wxThreadEvent *event = new wxThreadEvent(wxEVT_THREAD, INDIGUI_THREAD_NEWMESSAGE_EVENT);
-#ifdef INDI_PRE_1_0_0   
-   const char *msg = dp->messageQueue(messageID);
-#else   
+//#ifdef INDI_PRE_1_0_0   
+//   const char *msg = dp->messageQueue(messageID);
+//#else   
    const char *msg = dp->messageQueue(messageID).c_str(); // http://sourceforge.net/p/indi/code/1803/
-#endif   
+//#endif   
    event->SetExtraLong((long) msg);
    wxQueueEvent(this, event);
 }
@@ -212,11 +212,11 @@ void IndiGui::BuildPropWidget(INDI::Property *property, wxPanel *parent, IndiPro
    wxString propname =  wxString::FromAscii(property->getName());
    wxString proplbl =  wxString::FromAscii(property->getLabel());
    if (! proplbl) proplbl = propname;
-   #ifdef INDI_PRE_1_1_0
-     INDI_TYPE proptype = property->getType();
-   #else
+//   #ifdef INDI_PRE_1_1_0
+//     INDI_TYPE proptype = property->getType();
+//   #else
      INDI_PROPERTY_TYPE proptype = property->getType();
-   #endif 
+//   #endif 
    
    
    indiProp->page = parent;
@@ -229,7 +229,7 @@ void IndiGui::BuildPropWidget(INDI::Property *property, wxPanel *parent, IndiPro
    indiProp->PropName = propname;
    indiProp->property = property;
    
-   switch (proptype) {
+/*   switch (proptype) {
       case INDI_TEXT:
 	 CreateTextWidget(property, indiProp);
 	 break;
@@ -249,6 +249,7 @@ void IndiGui::BuildPropWidget(INDI::Property *property, wxPanel *parent, IndiPro
 	 CreateUnknowWidget(property, indiProp);
 	 break;
    }
+*/
    indiProp->gbs->Layout();
 }
 

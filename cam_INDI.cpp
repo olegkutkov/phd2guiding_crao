@@ -190,11 +190,11 @@ void Camera_INDIClass::newProperty(INDI::Property *property)
     // We keep the vector for each interesting property to send some data later.
     //const char* DeviName = property->getDeviceName();
     wxString PropName(property->getName());
-    #ifdef INDI_PRE_1_1_0
-      INDI_TYPE Proptype = property->getType();
-    #else
+//    #ifdef INDI_PRE_1_1_0
+//      INDI_TYPE Proptype = property->getType();
+//    #else
       INDI_PROPERTY_TYPE Proptype = property->getType();
-    #endif
+//    #endif
 
     //printf("Camera Property: %s\n",PropName);
 
