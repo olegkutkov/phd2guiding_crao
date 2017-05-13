@@ -215,7 +215,7 @@ bool ZtshHwComm::AdamCmd(const uint8_t channel, bool enable)
 	adam_data_buf[6] = (uint8_t) enable + ASCII_NUM_START;
 	adam_data_buf[7] = ADAM_ASCII_COMMAND_END;
 
-	ssize_t written = write(modbus_get_serial(ctx), adam_data_buf, adam_data_buf_len);
+	ssize_t written = write(modbus_get_socket(ctx), adam_data_buf, adam_data_buf_len);
 
 	mySleep(250);
 
