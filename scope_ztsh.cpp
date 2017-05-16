@@ -390,6 +390,18 @@ bool ScopeZTSH::GetCoordinates(double *ra, double *dec, double *siderealTime)
 	double ha_, ra_, dec_, ra_speed_, dec_speed_;
 	scope_pos->GetScopePosAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
 
+#ifdef LIBNOVA
+	double lat,lon;
+	double jd = ln_get_julian_from_sys();
+	*siderealTime = ln_get_apparent_sidereal_time (jd);
+
+	if (!GetSiteLatLong(&lat,&lon)) {
+	      *siderealTime = *siderealTime + (lon/15);
+	}
+#else
+	*siderealTime = 0;
+#endif
+
 	*ra = ra_ / 15; // get ra hour value
 	*dec = (dec_); // get dec degree value
 
