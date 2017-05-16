@@ -104,6 +104,8 @@ wxThread::ExitCode ScopeZtshPosition::Entry()
 		usleep(500000);
 	}
 
+	pFrame->ScheduleCoordsUpdate(0, 0, 0, 0, 0);
+
 	Disconnect();
 }
 
@@ -186,11 +188,16 @@ bool ScopeZtshPosition::Disconnect()
 
 void ScopeZtshPosition::GetScopePosAndSpeed(double &ha, double &ra, double &dec, double &rasp, double &decsp)
 {
-	ha = last_ha;
-	ra = last_ra;
-	dec = last_dec;
+	ha = last_ha += 0.1;
+	ra = last_ra += 0.1;
+	dec = last_dec += 0.1;
 	rasp = last_ra_speed;
 	decsp = last_dec_speed;
+}
+
+double ScopeZtshPosition::GetDeclination()
+{
+	return last_dec;
 }
 
 void ScopeZtshPosition::UpdateCoordsAndSpeed()
