@@ -45,6 +45,7 @@ CoordsView::CoordsView(wxWindow *parent):
 {
 	SetBackgroundStyle(wxBG_STYLE_PAINT);
 	this->visible = false;
+	curr_ha = 0;
 }
 
 CoordsView::~CoordsView()
@@ -106,6 +107,13 @@ void CoordsView::OnPaint(wxPaintEvent& WXUNUSED(evt))
     dc.SetFont(largeFont);
 
 	dc.SetTextForeground(*wxWHITE);
+
+	if (curr_ha == 0) {
+		largeFont = smallFont.Scaled(2);
+		dc.SetFont(largeFont);
+		dc.DrawText("Data is not available", 10, 5);
+		return;
+	}
 
 	dc.DrawText("t: ", 10, 5);
 	dc.DrawText(wxString::Format(wxT("%3.2f"), curr_ha), 55, 5);
