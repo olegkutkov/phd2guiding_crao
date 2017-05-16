@@ -47,6 +47,10 @@
 #include <errno.h>
 #endif
 
+#ifdef LIBNOVA
+  #include <libnova/sidereal_time.h>
+  #include <libnova/julian_day.h>
+#endif
 
 #ifdef GUIDE_ZTSH
 
