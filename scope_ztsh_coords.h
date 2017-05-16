@@ -46,6 +46,7 @@ public:
 	std::string GetErrorText();
 
 	void GetScopePosAndSpeed(double &ha, double &ra, double &dec, double &rasp, double &decsp);
+	double GetDeclination();
 
 private:
 	bool Connect(std::string host, int port);
