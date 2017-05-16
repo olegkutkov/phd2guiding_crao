@@ -59,21 +59,12 @@ ScopeZTSH::ScopeZTSH()
 	if (!scope_pos) {
 		wxMessageBox(_("Failed to allocate memory for coordinates server object"), _("Error"), wxOK | wxICON_ERROR);
 	}
-
-	if (scope_pos->Create() != wxTHREAD_NO_ERROR ) {
-		wxMessageBox(_("Failed to create ScopeZtshPosition thread!"), _("Error"), wxOK | wxICON_ERROR);
-	}
-
-	scope_pos->Run();
 }
 
 ScopeZTSH::~ScopeZTSH()
 {
 	if (scope_pos) {
-		scope_pos->Delete();
-
 		delete scope_pos;
-
 		scope_pos = NULL;
 	}
 }
@@ -143,6 +134,12 @@ bool ScopeZTSH::Connect(void)
 //		return true;
 	}
 
+	if (scope_pos->Create() != wxTHREAD_NO_ERROR ) {
+		wxMessageBox(_("Failed to create ScopeZtshPosition thread!"), _("Error"), wxOK | wxICON_ERROR);
+	}
+
+	scope_pos->Run();
+
 	Scope::Connect();
 
 	return connect_failed;
@@ -161,6 +158,10 @@ bool ScopeZTSH::Disconnect(void)
 
 		delete hwcomm;
 		hwcomm = NULL;
+	}
+
+	if (scope_pos) {
+		scope_pos->Delete();
 	}
 
 	Scope::Disconnect();
@@ -370,25 +371,27 @@ bool ScopeZTSH::CanReportPosition(void)
 
 double ScopeZTSH::GetDeclination(void)
 {
-	double ha, ra, dec, ra_speed, dec_speed;
-	scope_pos->GetScopePosAndSpeed(ha, ra, dec, ra_speed, dec_speed);
-
-	return radians(dec);
+	return radians(scope_pos->GetDeclination());
 }
 
 bool ScopeZTSH::GetGuideRates(double *pRAGuideRate, double *pDecGuideRate)
 {
 	printf("ScopeZTSH::GetGuideRates\n");
+
+	/// TODO!!!
+
 	return false;;
 }
 
 bool ScopeZTSH::GetCoordinates(double *ra, double *dec, double *siderealTime)
 {
+	printf("!!!!!! ScopeZTSH::GetCoordinates\n");
+
 	double ha_, ra_, dec_, ra_speed_, dec_speed_;
 	scope_pos->GetScopePosAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
 
-	*ra = 0;
-	*dec = dec_;
+	*ra = ra_ / 15; // get ra hour value
+	*dec = (dec_); // get dec degree value
 
 	return false;
 }
