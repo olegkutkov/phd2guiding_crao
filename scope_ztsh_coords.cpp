@@ -69,33 +69,22 @@ void ScopeZtshPosition::OnExit()
 
 wxThread::ExitCode ScopeZtshPosition::Entry()
 {
-	last_ha = 22.9;
-	last_ra = 253.3;
-	last_dec = 13.4596;
-	last_ra_speed = 14.7;
-	last_dec_speed = 0;
-
-/*
 	while (!thread_done) {
 		thread_done |= TestDestroy();
 
 		if (Connect("10.1.1.142", 16050)) {
 			break;
 		}
+
+		usleep(500000);
 	}
-*/
+
 	thread_done = TestDestroy();
 
 	while (!thread_done) {
 		UpdateCoordsAndSpeed();
 
 		if (pFrame) {
-			////
-			last_ha += 0.1;
-			last_ra += 0.1;
-			last_dec += 0.1;
-			////
-
 			pFrame->ScheduleCoordsUpdate(last_ha, last_ra, last_dec, last_ra_speed, last_dec_speed);
 		}
 
@@ -132,6 +121,9 @@ bool ScopeZtshPosition::Connect(std::string host, int port)
  
 	if (connect(sock, (struct sockaddr *)&server , sizeof(server)) < 0) {
 		last_error = std::string("Failed to connect to the coords server, error:\n") + strerror(errno);
+		close(sock);
+		sock = 0;
+
         return false;
 	}
 
@@ -178,6 +170,8 @@ bool ScopeZtshPosition::Disconnect()
 		return true;
 	}
 
+	std::cout << "Disconnecting from server, sending bye!" << std::endl;
+
 	WriteString("<ByeServer>");  
     close(sock);
 
@@ -188,9 +182,9 @@ bool ScopeZtshPosition::Disconnect()
 
 void ScopeZtshPosition::GetScopePosAndSpeed(double &ha, double &ra, double &dec, double &rasp, double &decsp)
 {
-	ha = last_ha += 0.1;
-	ra = last_ra += 0.1;
-	dec = last_dec += 0.1;
+	ha = last_ha;
+	ra = last_ra;
+	dec = last_dec;
 	rasp = last_ra_speed;
 	decsp = last_dec_speed;
 }
@@ -213,6 +207,12 @@ void ScopeZtshPosition::UpdateCoordsAndSpeed()
 	ReadString();
 	ReadString();
 	int count = ReadInt32();
+
+	last_ha = 0;
+	last_ra = 0;
+	last_dec = 0;
+	last_ra_speed = 0;
+	last_dec_speed = 0;
 
 	for (int i = 0; i < count; i++) {
 		srv_answer = ReadString();
