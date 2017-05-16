@@ -54,7 +54,7 @@ void WorkerThread::EnqueueMessage(const WORKER_THREAD_REQUEST& message)
 {
     wxMessageQueueError queueError;
 
-    if (message.request == REQUEST_EXPOSE)
+    if (message.request == REQUEST_EXPOSE || message.request == REQUEST_POS)
     {
         queueError = m_lowPriorityQueue.Post(message);
     }
@@ -358,7 +358,12 @@ void WorkerThread::SendWorkerThreadCoordsUpdate(POSITION_REQUEST *data)
 {
     wxThreadEvent *event = new wxThreadEvent(wxEVT_THREAD, MYFRAME_WORKER_THREAD_COORDS_UPDATE);
     event->SetInt(1);
-    event->SetPayload<POSITION_REQUEST *>(data);
+
+	POSITION_REQUEST *data_buf = new POSITION_REQUEST;
+	*data_buf = *data;
+
+    event->SetPayload<POSITION_REQUEST *>(data_buf);
+
     wxQueueEvent(m_pFrame, event);
 }
 
