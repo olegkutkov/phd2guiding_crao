@@ -272,11 +272,11 @@ void ScopeINDI::newProperty(INDI::Property *property)
     // Updated values are not received here but in the newTYPE() functions above.
     // We keep the vector for each interesting property to send some data later.
     const char* PropName = property->getName();
-    //#ifdef INDI_PRE_1_1_0
-    //  INDI_TYPE Proptype = property->getType();
-    //#else
+    #ifdef INDI_PRE_1_1_0
+      INDI_TYPE Proptype = property->getType();
+    #else
       INDI_PROPERTY_TYPE Proptype = property->getType();
-    //#endif 
+    #endif 
     
     //printf("Mount Property: %s\n",PropName);
     
@@ -476,6 +476,10 @@ bool   ScopeINDI::GetCoordinates(double *ra, double *dec, double *siderealTime)
 	if (raprop && decprop) {
 	    *ra = raprop->value;   // hours
 	    *dec = decprop->value; // degrees
+
+		printf("RA %f\n", *ra);
+		printf("DEC: %f\n", *dec);
+
 	    err = false;
 	}
 	if (SiderealTime_prop) {   // LX200 only
