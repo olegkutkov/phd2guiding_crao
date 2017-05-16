@@ -401,7 +401,7 @@ bool ScopeZTSH::GetCoordinates(double *ra, double *dec, double *siderealTime)
 #endif
 
 	*ra = ra_ / 15; // get ra hour value
-	*dec = (dec_); // get dec degree value
+	*dec = dec_; // get dec degree value
 
 	return false;
 }
