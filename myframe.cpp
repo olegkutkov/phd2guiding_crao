@@ -121,6 +121,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(MENU_AO_GRAPH, MyFrame::OnAoGraph)
     EVT_MENU(MENU_TARGET, MyFrame::OnTarget)
     EVT_MENU(MENU_COORDS, MyFrame::OnCoords)
+    EVT_MENU(MENU_SCOPECONTROL, MyFrame::OnScopeControl)
     EVT_MENU(MENU_SERVER, MyFrame::OnServerMenu)
     EVT_MENU(MENU_STARPROFILE, MyFrame::OnStarProfile)
     EVT_MENU(MENU_RESTORE_WINDOWS, MyFrame::OnRestoreWindows)
@@ -347,6 +348,11 @@ MyFrame::MyFrame(int instanceNumber, wxLocale *locale)
         Name(_T("Coords")).Caption(_("Scope position")).
         Hide());
 
+    pScopeControlPanel = new ScopeControlPanel(this);
+    m_mgr.AddPane(pScopeControlPanel, wxAuiPaneInfo().
+        Name(_T("ScopeControl")).Caption(_("Scope control")).
+        Hide());
+
     pTarget = new TargetWindow(this);
     m_mgr.AddPane(pTarget, wxAuiPaneInfo().
         Name(_T("Target")).Caption(_("Target")).
@@ -436,6 +442,10 @@ MyFrame::MyFrame(int instanceNumber, wxLocale *locale)
     pCoordsView->SetState(panel_state);
     Menubar->Check(MENU_COORDS, panel_state);
 
+    panel_state = m_mgr.GetPane(_T("ScopeControl")).IsShown();
+    pScopeControlPanel->SetState(panel_state);
+    Menubar->Check(MENU_SCOPECONTROL, panel_state);
+
     panel_state = m_mgr.GetPane(_T("Target")).IsShown();
     pTarget->SetState(panel_state);
     Menubar->Check(MENU_TARGET, panel_state);
@@ -519,6 +529,7 @@ void MyFrame::SetupMenuBar(void)
     view_menu->AppendCheckItem(MENU_AO_GRAPH, _("Display &AO Graph"), _("Enable / disable AO graph"));
     view_menu->AppendCheckItem(MENU_TARGET,_("Display &Target"),_("Enable / disable target"));
     view_menu->AppendCheckItem(MENU_COORDS,_("Display scope &position"),_("Enable / disable scope position"));
+    view_menu->AppendCheckItem(MENU_SCOPECONTROL,_("Display scope &control panel"),_("Enable / disable scope control panel"));
     view_menu->AppendCheckItem(MENU_STARPROFILE,_("Display Star &Profile"),_("Enable / disable star profile view"));
     view_menu->AppendSeparator();
     view_menu->AppendRadioItem(MENU_XHAIR0, _("&No Overlay"),_("No additional crosshairs"));

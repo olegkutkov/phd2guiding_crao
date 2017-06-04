@@ -140,6 +140,7 @@ bool ScopeZTSH::Connect(void)
 
 	if (scope_pos->Create() != wxTHREAD_NO_ERROR ) {
 		wxMessageBox(_("Failed to create ScopeZtshPosition thread!"), _("Error"), wxOK | wxICON_ERROR);
+		printf("err: %s\n", strerror(errno));
 	}
 
 	scope_pos->Run();

@@ -214,6 +214,7 @@ public:
     GearDialog *pGearDialog;
     ProfileWindow *pProfile;
     CoordsView *pCoordsView;
+    ScopeControlPanel *pScopeControlPanel;
     TargetWindow *pTarget;
     wxWindow *pDriftTool;
     wxWindow *pManualGuide;
@@ -290,6 +291,7 @@ public:
     void OnStarProfile(wxCommandEvent& evt);
     void OnTarget(wxCommandEvent& evt);
     void OnCoords(wxCommandEvent& evt);
+    void OnScopeControl(wxCommandEvent& evt);
     void OnRestoreWindows(wxCommandEvent& evt);
     void OnAutoStar(wxCommandEvent& evt);
     void OnBookmarksShow(wxCommandEvent& evt);
@@ -615,7 +617,8 @@ enum {
     MENU_BOOKMARKS_SET_AT_STAR,
     MENU_BOOKMARKS_CLEAR_ALL,
     MENU_STARCROSS_TEST,
-    MENU_COORDS
+    MENU_COORDS,
+    MENU_SCOPECONTROL
 };
 
 enum {

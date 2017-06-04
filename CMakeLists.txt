@@ -480,6 +480,7 @@ set(phd2_SRC
   ${phd_src_dir}/star_profile.cpp
   ${phd_src_dir}/star_profile.h 
   ${phd_src_dir}/coords_view.cpp
+  ${phd_src_dir}/scope_control_panel.cpp
   ${phd_src_dir}/target.cpp
   ${phd_src_dir}/target.h
   ${phd_src_dir}/testguide.cpp

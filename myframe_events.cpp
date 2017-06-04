@@ -725,6 +725,21 @@ void MyFrame::OnCoords(wxCommandEvent& evt)
     m_mgr.Update();
 }
 
+void MyFrame::OnScopeControl(wxCommandEvent& evt)
+{
+    if (evt.IsChecked())
+    {
+        m_mgr.GetPane(_T("ScopeControl")).Show().Right().Position(0).MinSize(-1,240);
+    }
+    else
+    {
+        m_mgr.GetPane(_T("ScopeControl")).Hide();
+    }
+
+    pScopeControlPanel->SetState(evt.IsChecked());
+    m_mgr.Update();
+}
+
 // Redock windows and restore main window to size/position where everything should be readily accessible
 void MyFrame::OnRestoreWindows(wxCommandEvent& evt)
 {
