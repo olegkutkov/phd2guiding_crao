@@ -47,8 +47,6 @@ END_EVENT_TABLE()
 ScopeControlPanel::ScopeControlPanel(wxWindow *parent):
 	wxWindow(parent,wxID_ANY,wxDefaultPosition,wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, "Scope control")
 {
-//	SetBackgroundStyle(wxBG_STYLE_PAINT);
-
 	this->visible = false;
 
 	SetBackgroundColour(*wxBLACK);
@@ -66,10 +64,8 @@ ScopeControlPanel::ScopeControlPanel(wxWindow *parent):
     sizer->Add(NButton1,wxSizerFlags().Expand().Border(wxALL,6));
     sizer->AddStretchSpacer();
     sizer->Add(WButton1,wxSizerFlags().Expand().Border(wxALL,6));
-    sizer->AddStretchSpacer();
-    sizer->Add(EButton1,wxSizerFlags().Expand().Border(wxALL,6));
-    sizer->AddStretchSpacer();
     sizer->Add(SButton1,wxSizerFlags().Expand().Border(wxALL,6));
+    sizer->Add(EButton1,wxSizerFlags().Expand().Border(wxALL,6));
 
 	wxSizer *sizer2 = new wxBoxSizer(wxVERTICAL);
 	sizer2->Add(sizer, 0, wxEXPAND, 10);
