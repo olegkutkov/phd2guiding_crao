@@ -729,7 +729,7 @@ void MyFrame::OnScopeControl(wxCommandEvent& evt)
 {
     if (evt.IsChecked())
     {
-        m_mgr.GetPane(_T("ScopeControl")).Show().Right().Position(0).MinSize(-1,240);
+        m_mgr.GetPane(_T("ScopeControl")).Show().Right().Position(0).MinSize(-1,140);
     }
     else
     {
