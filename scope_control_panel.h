@@ -46,8 +46,40 @@ public:
 
 	void OnButton(wxCommandEvent& evt);
 
+	void KeyNorthDown();
+	void KeyNorthUp();
+
+	void KeySouthDown();
+	void KeySouthUp();
+
+	void KeyWestDown();
+	void KeyWestUp();
+
+	void KeyEastDown();
+	void KeyEastUp();
+
+	void SetMountConnected(bool state);
+
 private:
     bool visible;
+	bool mount_connected;
+
+	wxBitmapButton* northButton;
+	wxBitmapButton* southButton;
+	wxBitmapButton* westButton;
+	wxBitmapButton* eastButton;
+
+	void OnNorthDown(wxCommandEvent &event);
+	void OnNorthUp(wxCommandEvent &event);
+
+	void OnSouthDown(wxCommandEvent &event);
+	void OnSouthUp(wxCommandEvent &event);
+
+	void OnEastDown(wxCommandEvent &event);
+	void OnEastUp(wxCommandEvent &event);
+
+	void OnWestDown(wxCommandEvent &event);
+	void OnWestUp(wxCommandEvent &event);
 
     DECLARE_EVENT_TABLE()
 };

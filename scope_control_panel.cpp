@@ -47,34 +47,192 @@ END_EVENT_TABLE()
 ScopeControlPanel::ScopeControlPanel(wxWindow *parent):
 	wxWindow(parent,wxID_ANY,wxDefaultPosition,wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, "Scope control")
 {
-	this->visible = false;
+	visible = false;
+	mount_connected = false;
 
 	SetBackgroundColour(*wxBLACK);
 
 	wxGridSizer *sizer = new wxGridSizer(3,3,0,0);
 
-	wxButton *NButton1, *SButton1, *EButton1, *WButton1;
+//	wxButton *NButton, *SButton, *EButton, *WButton;
 
-    NButton1 = new wxButton(this, MGUIDE1_UP, "North", wxPoint(-1,-1),wxSize(-1,-1));
-    SButton1 = new wxButton(this, MGUIDE1_DOWN, "South", wxPoint(-1,-1),wxSize(-1,-1));
-    EButton1 = new wxButton(this, MGUIDE1_RIGHT, "West", wxPoint(-1,-1),wxSize(-1,-1));
-    WButton1 = new wxButton(this, MGUIDE1_LEFT, "East", wxPoint(-1,-1),wxSize(-1,-1));
+//    NButton = new wxButton(this, MGUIDE1_UP, "North", wxPoint(-1,-1),wxSize(-1,-1));
+//	NButton->Connect(MGUIDE1_UP, wxEVT_LEFT_DOWN, wxCommandEventHandler(ScopeControlPanel::OnNorthDown));
+//	NButton->Connect(MGUIDE1_UP, wxEVT_LEFT_UP, wxCommandEventHandler(ScopeControlPanel::OnNorthUp));
+
+//    SButton = new wxButton(this, MGUIDE1_DOWN, "South", wxPoint(-1,-1),wxSize(-1,-1));
+//	SButton->Connect(MGUIDE1_DOWN, wxEVT_LEFT_DOWN, wxCommandEventHandler(ScopeControlPanel::OnSouthDown));
+//	SButton->Connect(MGUIDE1_DOWN, wxEVT_LEFT_UP, wxCommandEventHandler(ScopeControlPanel::OnSouthUp));
+
+//    EButton = new wxButton(this, MGUIDE1_RIGHT, "East", wxPoint(-1,-1),wxSize(-1,-1));
+//	EButton->Connect(MGUIDE1_RIGHT, wxEVT_LEFT_DOWN, wxCommandEventHandler(ScopeControlPanel::OnEastDown));
+//	EButton->Connect(MGUIDE1_RIGHT, wxEVT_LEFT_UP, wxCommandEventHandler(ScopeControlPanel::OnEastUp));
+
+//  WButton = new wxButton(this, MGUIDE1_LEFT, "West", wxPoint(-1,-1),wxSize(-1,-1));
+//	WButton->Connect(MGUIDE1_LEFT, wxEVT_LEFT_DOWN, wxCommandEventHandler(ScopeControlPanel::OnWestDown));
+//	WButton->Connect(MGUIDE1_LEFT, wxEVT_LEFT_UP, wxCommandEventHandler(ScopeControlPanel::OnWestUp));
+
+	// north
+	#include "icons/north_stopped.h"
+	wxBitmap north_stopped_bmp(wxBITMAP_PNG_FROM_DATA(north_stopped));
+
+	#include "icons/north_running.h"
+	wxBitmap north_running_bmp(wxBITMAP_PNG_FROM_DATA(north_running));
+
+	northButton = new wxBitmapButton(this, MGUIDE1_UP, north_stopped_bmp);
+	northButton->SetBitmapSelected(north_running_bmp);
+
+	// north
+
+	// south
+	#include "icons/south_stopped.h"
+	wxBitmap south_stopped_bmp(wxBITMAP_PNG_FROM_DATA(south_stopped));
+
+	#include "icons/south_running.h"
+	wxBitmap south_running_bmp(wxBITMAP_PNG_FROM_DATA(south_running));
+
+	southButton = new wxBitmapButton(this, MGUIDE1_DOWN, south_stopped_bmp);
+	southButton->SetBitmapSelected(south_running_bmp);
+
+	// south
+
+	// east
+	#include "icons/east_stopped.h"
+	wxBitmap east_stopped_bmp(wxBITMAP_PNG_FROM_DATA(east_stopped));
+
+	#include "icons/east_running.h"
+	wxBitmap east_running_bmp(wxBITMAP_PNG_FROM_DATA(east_running));
+
+	eastButton = new wxBitmapButton(this, MGUIDE1_LEFT, east_stopped_bmp);
+	eastButton->SetBitmapSelected(east_running_bmp);
+
+	// east
+
+	// west
+	#include "icons/west_stopped.h"
+	wxBitmap west_stopped_bmp(wxBITMAP_PNG_FROM_DATA(west_stopped));
+
+	#include "icons/west_running.h"
+	wxBitmap west_running_bmp(wxBITMAP_PNG_FROM_DATA(west_running));
+
+	westButton = new wxBitmapButton(this, MGUIDE1_RIGHT, west_stopped_bmp);
+	westButton->SetBitmapSelected(west_running_bmp);
+
+	// west
 
     sizer->AddStretchSpacer();
-    sizer->Add(NButton1,wxSizerFlags().Expand().Border(wxALL,6));
+    sizer->Add(northButton, wxSizerFlags().Expand().Border(wxALL,6));
     sizer->AddStretchSpacer();
-    sizer->Add(WButton1,wxSizerFlags().Expand().Border(wxALL,6));
-    sizer->Add(SButton1,wxSizerFlags().Expand().Border(wxALL,6));
-    sizer->Add(EButton1,wxSizerFlags().Expand().Border(wxALL,6));
+
+	sizer->Add(westButton, wxSizerFlags().Expand().Border(wxALL,6));
+
+    sizer->Add(southButton, wxSizerFlags().Expand().Border(wxALL,6));
+    sizer->Add(eastButton, wxSizerFlags().Expand().Border(wxALL,6));
 
 	wxSizer *sizer2 = new wxBoxSizer(wxVERTICAL);
 	sizer2->Add(sizer, 0, wxEXPAND, 10);
 
 	SetSizerAndFit(sizer2);
+
+	//this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(ScopeControlPanel::OnKeyDown), NULL, this);
 }
 
 ScopeControlPanel::~ScopeControlPanel()
 {
+}
+
+void ScopeControlPanel::OnNorthDown(wxCommandEvent &event)
+{
+	std::cout << "N down" << std::endl;
+	event.Skip();
+}
+
+void ScopeControlPanel::OnNorthUp(wxCommandEvent &event)
+{
+	std::cout << "N up" << std::endl;
+	event.Skip();
+}
+
+void ScopeControlPanel::OnSouthDown(wxCommandEvent &event)
+{
+	std::cout << "S down" << std::endl;
+	event.Skip();
+}
+
+void ScopeControlPanel::OnSouthUp(wxCommandEvent &event)
+{
+	std::cout << "s up" << std::endl;
+	event.Skip();
+}
+
+void ScopeControlPanel::OnEastDown(wxCommandEvent &event)
+{
+	std::cout << "E down" << std::endl;
+	event.Skip();
+}
+
+void ScopeControlPanel::OnEastUp(wxCommandEvent &event)
+{
+	std::cout << "E up" << std::endl;
+	event.Skip();
+}
+
+void ScopeControlPanel::OnWestDown(wxCommandEvent &event)
+{
+
+	event.Skip();
+}
+
+void ScopeControlPanel::OnWestUp(wxCommandEvent &event)
+{
+	std::cout << "W up" << std::endl;
+	event.Skip();
+}
+
+void ScopeControlPanel::KeyNorthDown()
+{
+	
+}
+
+void ScopeControlPanel::KeyNorthUp()
+{
+	
+}
+
+void ScopeControlPanel::KeySouthDown()
+{
+	
+}
+
+void ScopeControlPanel::KeySouthUp()
+{
+	
+}
+
+void ScopeControlPanel::KeyWestDown()
+{
+	
+}
+
+void ScopeControlPanel::KeyWestUp()
+{
+	
+}
+
+void ScopeControlPanel::KeyEastDown()
+{
+	
+}
+
+void ScopeControlPanel::KeyEastUp()
+{
+	
+}
+
+
+void ScopeControlPanel::SetMountConnected(bool state)
+{
+	mount_connected = state;
 }
 
 void ScopeControlPanel::OnPaint(wxPaintEvent& WXUNUSED(evt))
@@ -83,8 +241,6 @@ void ScopeControlPanel::OnPaint(wxPaintEvent& WXUNUSED(evt))
 
 //	dc.SetBackground(wxColour(0,0,0));
 //	dc.Clear();
-
-
 }
 
 void ScopeControlPanel::SetState(bool is_active)
