@@ -47,7 +47,8 @@ enum E_MYFRAME_WORKER_THREAD_MESSAGES
 {
     MYFRAME_WORKER_THREAD_EXPOSE_COMPLETE = wxID_HIGHEST+1,
     MYFRAME_WORKER_THREAD_MOVE_COMPLETE,
-    MYFRAME_WORKER_THREAD_COORDS_UPDATE
+    MYFRAME_WORKER_THREAD_COORDS_UPDATE,
+    MYFRAME_WORKER_THREAD_MANUAL_MOVE
 };
 
 wxDECLARE_EVENT(REQUEST_EXPOSURE_EVENT, wxCommandEvent);
@@ -305,6 +306,7 @@ public:
     void OnExposeComplete(usImage *image, bool err);
     void OnMoveComplete(wxThreadEvent& evt);
     void OnCoordsUpdate(wxThreadEvent& evt);
+    void OnManualMove(wxThreadEvent& event);
     void LoadProfileSettings(void);
     void UpdateTitle(void);
 
@@ -372,6 +374,8 @@ public:
     void ScheduleCalibrationMove(Mount *pMount, const GUIDE_DIRECTION direction, int duration);
 
     void ScheduleCoordsUpdate(double ha, double ra, double dec, double rasp, double decsp);
+
+    void ScheduleManualMove(GUIDE_DIRECTION direction, bool start);
 
     void StartCapturing(void);
     void StopCapturing(void);
@@ -451,6 +455,7 @@ private:
     void SetupStatusBar(void);
     void SetupToolBar();
     void SetupKeyboardShortcuts(void);
+    void OnKeyboardDown(wxKeyEvent& evt);
     void SetupHelpFile(void);
     int GetTextWidth(wxControl *pControl, const wxString& string);
     void SetComboBoxWidth(wxComboBox *pComboBox, unsigned int extra);
@@ -618,7 +623,10 @@ enum {
     MENU_BOOKMARKS_CLEAR_ALL,
     MENU_STARCROSS_TEST,
     MENU_COORDS,
-    MENU_SCOPECONTROL
+    MENU_SCOPECONTROL,
+    START_STOP_HA_DRIVER,
+    CONFIGURE_MOVE_SPEEDS,
+    SCOPE_FORCE_RECALIBRATION
 };
 
 enum {

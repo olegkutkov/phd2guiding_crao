@@ -89,6 +89,12 @@ struct POSITION_REQUEST
 	char* error_text;
 };
 
+struct MANUAL_MOVE_REQUEST
+{
+	GUIDE_DIRECTION direction;
+	bool start;
+};
+
 class WorkerThread : public wxThread
 {
     // types and routines for the server->worker message queue
@@ -98,7 +104,8 @@ class WorkerThread : public wxThread
         REQUEST_TERMINATE,
         REQUEST_EXPOSE,
         REQUEST_MOVE,
-        REQUEST_POS		
+        REQUEST_POS,
+        REQUEST_MANUAL_MOVE
     };
 
     /*
@@ -113,6 +120,7 @@ class WorkerThread : public wxThread
             EXPOSE_REQUEST expose;
             MOVE_REQUEST move;
             POSITION_REQUEST pos;
+            MANUAL_MOVE_REQUEST manmove;
         } args;
     };
 
@@ -207,6 +215,12 @@ protected:
     void SendWorkerThreadCoordsUpdate(POSITION_REQUEST *data);
 
     void EnqueueMessage(const WORKER_THREAD_REQUEST& message);
+
+public:
+	void EnqueWorkerThreadManualMoveRequest(GUIDE_DIRECTION direction, bool start);
+
+protected:
+	void SendWorkerThreadManualMoveRequest(MANUAL_MOVE_REQUEST *pArgs);
 };
 
 inline void WorkerThread::RequestStop(void)

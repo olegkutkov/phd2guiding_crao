@@ -367,6 +367,38 @@ void WorkerThread::SendWorkerThreadCoordsUpdate(POSITION_REQUEST *data)
     wxQueueEvent(m_pFrame, event);
 }
 
+
+/*************      Manual move       **************************/
+
+void WorkerThread::EnqueWorkerThreadManualMoveRequest(GUIDE_DIRECTION direction, bool start)
+{
+    m_interruptRequested &= ~INT_STOP;
+
+    WORKER_THREAD_REQUEST message;
+    memset(&message, 0, sizeof(message));
+
+    Debug.Write(wxString::Format("Enqueuing Telescope coords update request \n"));
+
+    message.request                   = REQUEST_MANUAL_MOVE;
+    message.args.manmove.direction    = direction;
+    message.args.manmove.start        = start;
+
+    EnqueueMessage(message);
+}
+
+void WorkerThread::SendWorkerThreadManualMoveRequest(MANUAL_MOVE_REQUEST *pArgs)
+{
+	wxThreadEvent *event = new wxThreadEvent(wxEVT_THREAD, MYFRAME_WORKER_THREAD_MANUAL_MOVE);
+	event->SetInt(1);
+
+	MANUAL_MOVE_REQUEST *data_buf = new MANUAL_MOVE_REQUEST;
+	*data_buf = *pArgs;
+
+	event->SetPayload<MANUAL_MOVE_REQUEST *>(data_buf);
+
+	wxQueueEvent(m_pFrame, event);
+}
+
 /*
  * entry point for the background thread
  */
@@ -436,6 +468,10 @@ wxThread::ExitCode WorkerThread::Entry()
 
             case REQUEST_POS:
                 SendWorkerThreadCoordsUpdate(&message.args.pos);
+                break;
+
+            case REQUEST_MANUAL_MOVE:
+                SendWorkerThreadManualMoveRequest(&message.args.manmove);
                 break;
 
             default:

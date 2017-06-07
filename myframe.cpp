@@ -146,6 +146,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_THREAD(MYFRAME_WORKER_THREAD_EXPOSE_COMPLETE, MyFrame::OnExposeComplete)
     EVT_THREAD(MYFRAME_WORKER_THREAD_MOVE_COMPLETE, MyFrame::OnMoveComplete)
     EVT_THREAD(MYFRAME_WORKER_THREAD_COORDS_UPDATE, MyFrame::OnCoordsUpdate)
+    EVT_THREAD(MYFRAME_WORKER_THREAD_MANUAL_MOVE, MyFrame::OnManualMove)
 
     EVT_COMMAND(wxID_ANY, REQUEST_EXPOSURE_EVENT, MyFrame::OnRequestExposure)
     EVT_COMMAND(wxID_ANY, WXMESSAGEBOX_PROXY_EVENT, MyFrame::OnMessageBoxProxy)
@@ -956,6 +957,31 @@ void MyFrame::SetupKeyboardShortcuts(void)
     };
     wxAcceleratorTable accel(WXSIZEOF(entries), entries);
     SetAcceleratorTable(accel);
+
+	this->Bind(wxEVT_CHAR_HOOK, &MyFrame::OnKeyboardDown, this);
+}
+
+void MyFrame::OnKeyboardDown(wxKeyEvent& evt)
+{
+	switch (evt.GetKeyCode()) {
+		case WXK_LEFT:
+			std::cout << "KEY LEFT " << std::endl;
+			break;
+
+		case WXK_RIGHT:
+			std::cout << "KEY RIGHT " << std::endl;
+			break;
+
+		case WXK_UP:
+			std::cout << "KEY UP " << std::endl;
+			break;
+
+		case WXK_DOWN:
+			std::cout << "KEY DOWN " << std::endl;
+			break;
+	}
+
+	evt.Skip();
 }
 
 void MyFrame::SetupHelpFile(void)
@@ -1578,6 +1604,17 @@ void MyFrame::ScheduleCoordsUpdate(double ha, double ra, double dec, double rasp
 	wxCriticalSectionLocker lock(m_CSpWorkerThread);
 
 	m_pPrimaryWorkerThread->EnqueWorkerThreadPositionRequest(ha, ra, dec, rasp, decsp);
+}
+
+void MyFrame::ScheduleManualMove(GUIDE_DIRECTION direction, bool start)
+{
+	if (!m_pPrimaryWorkerThread) {
+		return;
+	} 
+
+	wxCriticalSectionLocker lock(m_CSpWorkerThread);
+
+	m_pPrimaryWorkerThread->EnqueWorkerThreadManualMoveRequest(direction, start);
 }
 
 void MyFrame::StartCapturing()

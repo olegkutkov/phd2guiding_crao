@@ -468,6 +468,56 @@ void MyFrame::OnCoordsUpdate(wxThreadEvent& event)
 	delete coords;
 }
 
+void MyFrame::OnManualMove(wxThreadEvent& event)
+{
+	if (!pMount || !pMount->IsConnected()) {
+		//wxMessageBox(_("Please connect a mount first."), _("Manual move"));
+		return;
+	}
+
+	MANUAL_MOVE_REQUEST *req = event.GetPayload<MANUAL_MOVE_REQUEST *>();
+
+	switch (req->direction) {
+		case NORTH:
+			if (req->start) {
+				pMount->StartAxis(NORTH);
+			} else {
+				pMount->StopAxis(NORTH);
+			}
+
+			break;
+
+		case SOUTH:
+			if (req->start) {
+				pMount->StartAxis(SOUTH);
+			} else {
+				pMount->StopAxis(SOUTH);
+			}
+
+			break;
+
+		case EAST:
+			if (req->start) {
+				pMount->StartAxis(EAST);
+			} else {
+				pMount->StopAxis(EAST);
+			}
+
+			break;
+
+		case WEST:
+			if (req->start) {
+				pMount->StartAxis(WEST);
+			} else {
+				pMount->StopAxis(WEST);
+			}
+
+			break;
+	}
+
+	delete req;
+}
+
 void MyFrame::OnButtonStop(wxCommandEvent& WXUNUSED(event))
 {
     Debug.Write("Stop button clicked\n");
