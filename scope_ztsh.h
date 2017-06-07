@@ -60,6 +60,12 @@ public:
 
     bool   CanPulseGuide();
 
+	MOVE_RESULT StartAxis(GUIDE_DIRECTION direction);
+	MOVE_RESULT StopAxis(GUIDE_DIRECTION direction);
+
+	void StartHADriver();
+	void StopHADriver();
+
 private:
 	ZtshHwComm *hwcomm;
 	ScopeZtshPosition *scope_pos;

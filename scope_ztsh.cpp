@@ -369,6 +369,82 @@ Mount::MOVE_RESULT ScopeZTSH::Guide(GUIDE_DIRECTION direction, int duration)
 	return MOVE_OK;
 }
 
+Mount::MOVE_RESULT ScopeZTSH::StartAxis(GUIDE_DIRECTION direction)
+{
+	switch (direction) {
+		case EAST:
+			if (!hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_high_speed", 6000))) {
+				return MOVE_ERROR;
+			}
+
+			break;
+
+		case WEST:
+			if (!hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_low_speed", 4635))) {
+				return MOVE_ERROR;
+			}
+
+			break;
+
+		case NORTH:
+			if (!hwcomm->SetDecAxisSpeed(DEC_DIRECTION_PLUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450))) {
+				return MOVE_ERROR;
+			}
+	
+			hwcomm->AdamRelayEnableDecPlus();
+
+			break;
+
+		case SOUTH:
+			if (!hwcomm->SetDecAxisSpeed(DEC_DIRECTION_MINUS, pConfig->Profile.GetInt("/crao/ztsh/inv_dec_high_speed", 450))) {
+				return MOVE_ERROR;
+			}
+
+			hwcomm->AdamRelayEnableDecMinus();
+
+			break;
+	}
+
+	return MOVE_OK;
+}
+
+Mount::MOVE_RESULT ScopeZTSH::StopAxis(GUIDE_DIRECTION direction)
+{
+	switch (direction) {
+		case EAST:
+		case WEST:
+			if (!hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035))) {
+				return MOVE_ERROR;
+			}
+
+			break;
+
+		case NORTH:
+			hwcomm->StopDecAxis();
+			hwcomm->AdamRelayDisableDecPlus();
+
+			break;
+
+		case SOUTH:
+			hwcomm->StopDecAxis();
+			hwcomm->AdamRelayDisableDecMinus();
+	
+			break;
+	}
+
+	return MOVE_OK;
+}
+
+void ScopeZTSH::StartHADriver()
+{
+	hwcomm->SetHourAxisSpeed(pConfig->Profile.GetInt("/crao/ztsh/inv_hour_norm_speed", 5035));
+}
+
+void ScopeZTSH::StopHADriver()
+{
+	hwcomm->SetHourAxisSpeed(0);
+}
+
 bool ScopeZTSH::CanReportPosition(void)
 {
 	return true;
