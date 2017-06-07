@@ -255,6 +255,12 @@ private:
     int CalibrationMoveSize(void);
     int CalibrationTotDistance(void);
 
+//	MOVE_RESULT StartAxis(GUIDE_DIRECTION direction) { return MOVE_OK; };
+//	MOVE_RESULT StopAxis(GUIDE_DIRECTION direction) { return MOVE_OK; };
+
+//	void StartHADriver() {};
+//	void StopHADriver() {};
+
     void ClearCalibration(void);
     wxString GetCalibrationStatus(double dX, double dY, double dist, double dist_crit);
     void SanityCheckCalibration(const Calibration& oldCal, const CalibrationDetails& oldDetails);

@@ -268,6 +268,13 @@ public:
     void IncrementErrorCount(void);
     void ResetErrorCount(void);
 
+	virtual MOVE_RESULT StartAxis(GUIDE_DIRECTION direction) { return MOVE_OK; };
+	virtual MOVE_RESULT StopAxis(GUIDE_DIRECTION direction) { return MOVE_OK; };
+
+	virtual void StartHADriver() {};
+	virtual void StopHADriver() {};
+
+
     // pure virtual functions -- these MUST be overridden by a subclass
 public:
     // move the requested direction, return the actual amount of the move
