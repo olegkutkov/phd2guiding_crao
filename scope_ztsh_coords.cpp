@@ -69,7 +69,7 @@ void ScopeZtshPosition::OnExit()
 
 wxThread::ExitCode ScopeZtshPosition::Entry()
 {
-/*	while (!thread_done) {
+	while (!thread_done) {
 		thread_done |= TestDestroy();
 
 		if (Connect("10.1.1.142", 16050)) {
@@ -77,12 +77,12 @@ wxThread::ExitCode ScopeZtshPosition::Entry()
 		}
 
 		usleep(500000);
-	} */
+	}
 
 	thread_done = TestDestroy();
 
 	while (!thread_done) {
-//		UpdateCoordsAndSpeed();
+		UpdateCoordsAndSpeed();
 
 		if (pFrame) {
 			double hour_angle_deg = last_ha * 15;
@@ -91,9 +91,9 @@ wxThread::ExitCode ScopeZtshPosition::Entry()
 			pFrame->ScheduleCoordsUpdate(last_ha, last_ra, last_dec, last_ra_speed, last_dec_speed);
 		}
 
-		last_ha += 0.001;
-		last_dec += 0.001;
-		last_ra = 20;
+//		last_ha += 0.001;
+//		last_dec += 0.001;
+//		last_ra = 20;
 
 		thread_done |= TestDestroy();
 
