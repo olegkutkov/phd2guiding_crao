@@ -58,12 +58,14 @@ public:
 
 	void SetMountConnected(bool connected);
 
+	void SetCameraAngle(double ang);
+
 private:
     bool visible;
 	bool mount_connected;
 	bool ha_enabled;
 
-//	double cam_deg;
+	double cam_deg;
 
 	wxBitmapButton* northButton;
 	wxBitmapButton* southButton;

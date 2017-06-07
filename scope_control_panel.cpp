@@ -54,6 +54,7 @@ ScopeControlPanel::ScopeControlPanel(wxWindow *parent):
 	visible = false;
 	mount_connected = false;
 	ha_enabled = false;
+	cam_deg = 0;
 
 	SetBackgroundColour(*wxBLACK);
 
@@ -296,11 +297,21 @@ void ScopeControlPanel::OnPaint(wxPaintEvent& WXUNUSED(evt))
 		dc.DrawText("RUNNING", 100, 146);
 	}
 	
-//	dc.SetTextForeground(*wxWHITE);
+	dc.SetTextForeground(*wxWHITE);
 
-//	dc.DrawText("Camera angle: ", 5, 231);
+	dc.DrawText("Camera angle: ", 5, 231);
 
-//	dc.DrawText(wxString::Format(wxT("%.2f deg"), cam_deg), 100, 231);
+	dc.DrawText(wxString::Format(wxT("%.2f deg"), cam_deg), 100, 231);
+}
+
+
+void ScopeControlPanel::SetCameraAngle(double ang)
+{
+	cam_deg = ang;
+
+	if (visible) {
+		Refresh();
+	}
 }
 
 void ScopeControlPanel::SetState(bool is_active)
