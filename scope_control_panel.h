@@ -63,6 +63,8 @@ private:
 	bool mount_connected;
 	bool ha_enabled;
 
+//	double cam_deg;
+
 	wxBitmapButton* northButton;
 	wxBitmapButton* southButton;
 	wxBitmapButton* westButton;

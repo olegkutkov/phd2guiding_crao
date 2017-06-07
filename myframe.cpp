@@ -160,6 +160,51 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_AUI_PANE_CLOSE(MyFrame::OnPanelClose)
 END_EVENT_TABLE()
 
+
+//////// custom event handler for keyboard ////////////
+
+class CEventPropagator : public wxEvtHandler
+{
+public:
+	CEventPropagator();
+	static void registerFor(wxWindow* win);
+ 
+private:
+	void OnKeyboardDown(wxKeyEvent& aEvent);
+	void OnKeyboardUp(wxKeyEvent& aEvent);
+};
+
+CEventPropagator::CEventPropagator()
+{
+	// Event connections
+	this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(CEventPropagator::OnKeyboardDown));
+	this->Connect(wxEVT_KEY_UP,   wxKeyEventHandler(CEventPropagator::OnKeyboardUp));
+}
+ 
+void CEventPropagator::OnKeyboardDown(wxKeyEvent& aEvent)
+{
+	aEvent.ResumePropagation(1);
+	aEvent.Skip();
+}
+
+void CEventPropagator::OnKeyboardUp(wxKeyEvent& aEvent)
+{
+	aEvent.ResumePropagation(1);
+	aEvent.Skip();
+}
+ 
+void CEventPropagator::registerFor(wxWindow* win)
+{
+	wxWindowListNode* childNode = win->GetChildren().GetFirst();
+
+	while (childNode) {
+		childNode->GetData()->PushEventHandler(new CEventPropagator());
+		childNode = childNode->GetNext();
+	}
+}
+
+////////////////
+
 struct FileDropTarget : public wxFileDropTarget
 {
     FileDropTarget() { }
@@ -958,7 +1003,29 @@ void MyFrame::SetupKeyboardShortcuts(void)
     wxAcceleratorTable accel(WXSIZEOF(entries), entries);
     SetAcceleratorTable(accel);
 
-	this->Bind(wxEVT_CHAR_HOOK, &MyFrame::OnKeyboardDown, this);
+//	CEventPropagator::registerFor(this);
+
+//	this->Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyboardDown), NULL, this);
+
+//	this->Bind(wxEVT_CHAR_HOOK, &MyFrame::OnKeyboardDown, this);
+
+	ConnectKeyEvent(this);
+}
+
+void MyFrame::ConnectKeyEvent(wxWindow* pclComponent)
+{
+	if (pclComponent) {
+		pclComponent->Connect(wxID_ANY, wxEVT_KEY_DOWN, wxKeyEventHandler(MyFrame::OnKeyboardDown), (wxObject*) NULL, this);
+		pclComponent->Connect(wxID_ANY, wxEVT_KEY_UP, wxKeyEventHandler(MyFrame::OnKeyboardUp), (wxObject*) NULL, this);
+ 
+		wxWindowListNode* pclNode = pclComponent->GetChildren().GetFirst();
+
+		while(pclNode) {
+			wxWindow* pclChild = pclNode->GetData();
+			this->ConnectKeyEvent(pclChild);
+			pclNode = pclNode->GetNext();
+		}
+	}
 }
 
 void MyFrame::OnKeyboardDown(wxKeyEvent& evt)
@@ -978,6 +1045,29 @@ void MyFrame::OnKeyboardDown(wxKeyEvent& evt)
 
 		case WXK_DOWN:
 			std::cout << "KEY DOWN " << std::endl;
+			break;
+	}
+
+	evt.Skip();
+}
+
+void MyFrame::OnKeyboardUp(wxKeyEvent& evt)
+{
+	switch (evt.GetKeyCode()) {
+		case WXK_LEFT:
+			std::cout << "KEY LEFT UP" << std::endl;
+			break;
+
+		case WXK_RIGHT:
+			std::cout << "KEY RIGHT UP" << std::endl;
+			break;
+
+		case WXK_UP:
+			std::cout << "KEY UP UP" << std::endl;
+			break;
+
+		case WXK_DOWN:
+			std::cout << "KEY DOWN UP" << std::endl;
 			break;
 	}
 

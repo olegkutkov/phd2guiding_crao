@@ -295,6 +295,12 @@ void ScopeControlPanel::OnPaint(wxPaintEvent& WXUNUSED(evt))
 		dc.SetTextForeground(*wxGREEN);
 		dc.DrawText("RUNNING", 100, 146);
 	}
+	
+//	dc.SetTextForeground(*wxWHITE);
+
+//	dc.DrawText("Camera angle: ", 5, 231);
+
+//	dc.DrawText(wxString::Format(wxT("%.2f deg"), cam_deg), 100, 231);
 }
 
 void ScopeControlPanel::SetState(bool is_active)

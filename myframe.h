@@ -455,7 +455,9 @@ private:
     void SetupStatusBar(void);
     void SetupToolBar();
     void SetupKeyboardShortcuts(void);
+    void ConnectKeyEvent(wxWindow* pclComponent);
     void OnKeyboardDown(wxKeyEvent& evt);
+    void OnKeyboardUp(wxKeyEvent& evt);
     void SetupHelpFile(void);
     int GetTextWidth(wxControl *pControl, const wxString& string);
     void SetComboBoxWidth(wxComboBox *pComboBox, unsigned int extra);
