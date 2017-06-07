@@ -61,6 +61,8 @@ class ScopeConfigDialogCtrlSet : public MountConfigDialogCtrlSet
     wxCheckBox *m_pUseBacklashComp;
     wxSpinCtrlDouble *m_pBacklashPulse;
     wxCheckBox *m_pUseDecComp;
+    wxCheckBox *m_pUseHaAngleCorrection;
+    wxCheckBox *m_pUseHaDecAngleCorrection;
 
     void OnCalcCalibrationStep(wxCommandEvent& evt);
 

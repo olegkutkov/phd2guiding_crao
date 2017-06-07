@@ -883,8 +883,10 @@ void MyFrame::LoadProfileSettings(void)
 
     // Don't re-save the setting here with a call to SetAutoLoadCalibration().  An un-initialized registry key (-1) will
     // be populated after the 1st calibration
-    int autoLoad = pConfig->Profile.GetInt("/AutoLoadCalibration", -1);
-    m_autoLoadCalibration = (autoLoad == 1);        // new profile=> false
+//    int autoLoad = pConfig->Profile.GetInt("/AutoLoadCalibration", -1);
+//    m_autoLoadCalibration = (autoLoad == 1);        // new profile=> false
+
+    m_autoLoadCalibration = pConfig->Profile.GetInt("/correct_camangle_by_ha", 0);
 
     int focalLength = pConfig->Profile.GetInt("/frame/focalLength", DefaultFocalLength);
     SetFocalLength(focalLength);
@@ -2116,7 +2118,8 @@ void MyFrame::SetAutoLoadCalibration(bool val)
     if (m_autoLoadCalibration != val)
     {
         m_autoLoadCalibration = val;
-        pConfig->Profile.SetBoolean("/AutoLoadCalibration", m_autoLoadCalibration);
+        pConfig->Profile.SetBoolean("/correct_camangle_by_ha", m_autoLoadCalibration);
+        //pConfig->Profile.SetBoolean("/AutoLoadCalibration", m_autoLoadCalibration);
     }
 }
 
@@ -2845,8 +2848,10 @@ MyFrameConfigDialogCtrlSet::MyFrameConfigDialogCtrlSet(MyFrame *pFrame, Advanced
     AddGroup(CtrlMap, AD_szDither, ditherGroupBox);
 
     parent = GetParentWindow(AD_cbAutoRestoreCal);
-    m_pAutoLoadCalibration = new wxCheckBox(parent, wxID_ANY, _("Auto restore calibration"), wxDefaultPosition, wxDefaultSize);
-    AddCtrl(CtrlMap, AD_cbAutoRestoreCal, m_pAutoLoadCalibration, _("Automatically restore calibration data from last successful calibration when connecting equipment."));
+//    m_pAutoLoadCalibration = new wxCheckBox(parent, wxID_ANY, _("Auto restore calibration"), wxDefaultPosition, wxDefaultSize);
+    m_pAutoLoadCalibration = new wxCheckBox(parent, wxID_ANY, _("Correct coude field rotation by HA angle"), wxDefaultPosition, wxDefaultSize);
+    AddCtrl(CtrlMap, AD_cbAutoRestoreCal, m_pAutoLoadCalibration, _("Correct coude field rotation by HA angle."));
+//    AddCtrl(CtrlMap, AD_cbAutoRestoreCal, m_pAutoLoadCalibration, _("Automatically restore calibration data from last successful calibration when connecting equipment."));
 
     wxSizerFlags sizer_flags = wxSizerFlags(0).Border(wxALL, 10).Expand();
     parent = GetParentWindow(AD_szAutoExposure);

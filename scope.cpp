@@ -97,7 +97,8 @@ Scope::Scope(void)
     bool val = pConfig->Profile.GetBoolean(prefix + "/CalFlipRequiresDecFlip", false);
     SetCalibrationFlipRequiresDecFlip(val);
 
-    val = pConfig->Profile.GetBoolean(prefix + "/AssumeOrthogonal", false);
+//    val = pConfig->Profile.GetBoolean(prefix + "/AssumeOrthogonal", false);
+    val = pConfig->Profile.GetInt("/correct_camangle_by_ha_dec", 0);
     SetAssumeOrthogonal(val);
 
     val = pConfig->Profile.GetBoolean(prefix + "/UseDecComp", true);
@@ -468,7 +469,8 @@ void Scope::SetCalibrationFlipRequiresDecFlip(bool val)
 void Scope::SetAssumeOrthogonal(bool val)
 {
     m_assumeOrthogonal = val;
-    pConfig->Profile.SetBoolean("/scope/AssumeOrthogonal", val);
+//    pConfig->Profile.SetBoolean("/scope/AssumeOrthogonal", val);
+    pConfig->Profile.SetInt("correct_camangle_by_ha_dec", val);
 }
 
 void Scope::EnableStopGuidingWhenSlewing(bool enable)
@@ -1664,7 +1666,7 @@ ScopeConfigDialogCtrlSet::ScopeConfigDialogCtrlSet(wxWindow *pParent, Scope *pSc
         m_pStopGuidingWhenSlewing = 0;
 
     m_assumeOrthogonal = new wxCheckBox(GetParentWindow(AD_cbAssumeOrthogonal), wxID_ANY,
-        _("Assume Dec orthogonal to RA"));
+        _("Correct coude field rotation by HA + DEC angle"));
     m_assumeOrthogonal->Enable(enableCtrls);
     AddCtrl(CtrlMap, AD_cbAssumeOrthogonal, m_assumeOrthogonal,
         _("Assume Dec axis is perpendicular to RA axis, regardless of calibration. Prevents RA periodic error from affecting Dec calibration. Option takes effect when calibrating DEC."));
@@ -1680,6 +1682,10 @@ ScopeConfigDialogCtrlSet::ScopeConfigDialogCtrlSet(wxWindow *pParent, Scope *pSc
         m_pUseDecComp = new wxCheckBox(GetParentWindow(AD_cbUseDecComp), wxID_ANY, _("Use Dec compensation"));
         m_pUseDecComp->Enable(enableCtrls && pPointingSource != NULL);
         AddCtrl(CtrlMap, AD_cbUseDecComp, m_pUseDecComp, _("Automatically adjust RA guide rate based on scope declination"));
+
+//        m_pUseHaAngleCorrection = new wxCheckBox(GetParentWindow(AD_cbUseHaAngleCorrection), wxID_ANY, _("Coude correction by HA"));
+//        m_pUseHaAngleCorrection->Enable(enableCtrls && pPointingSource != NULL);
+//        AddCtrl(CtrlMap, AD_cbUseHaAngleCorrection, m_pUseHaAngleCorrection, _("Compensate coude field rotation by HA angle"));
 
         width = StringWidth(_T("00000"));
         m_pMaxRaDuration = pFrame->MakeSpinCtrl(GetParentWindow(AD_szMaxRAAmt), wxID_ANY, _T(""), wxDefaultPosition,

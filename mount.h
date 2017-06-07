@@ -150,10 +150,11 @@ class Mount : public wxMessageBoxProxy
     int m_requestCount;
     int m_errorCount;
 
-    bool m_calibrated;
+    bool m_calibrated;;
     Calibration m_cal;
     double m_xRate;         // rate adjusted for declination
     double m_yAngleError;
+    double m_rotateCompDelta;
 
 protected:
     bool m_guidingEnabled;
@@ -240,6 +241,8 @@ public:
     bool FlipCalibration(void);
     bool GetGuidingEnabled(void) const;
     void SetGuidingEnabled(bool guidingEnabled);
+
+    void UpdatexAngle(double hour_angle, double dec_angle);
 
     virtual MOVE_RESULT Move(const PHD_Point& cameraVectorEndpoint, MountMoveType moveType);
     bool TransformCameraCoordinatesToMountCoordinates(const PHD_Point& cameraVectorEndpoint,

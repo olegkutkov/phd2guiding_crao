@@ -635,6 +635,8 @@ Mount::Mount(void)
     m_requestCount = 0;
     m_errorCount = 0;
 
+    m_rotateCompDelta = 0;
+
     m_pYGuideAlgorithm = NULL;
     m_pXGuideAlgorithm = NULL;
     m_guidingEnabled = true;
@@ -675,6 +677,33 @@ double Mount::xAngle() const
 double Mount::yAngle() const
 {
     return norm_angle(m_cal.xAngle - m_yAngleError + M_PI / 2.);
+}
+
+void Mount::UpdatexAngle(double hour_angle, double dec_angle)
+{
+	bool correct_camangle_by_ha = pConfig->Profile.GetInt("/correct_camangle_by_ha", 0);
+	bool correct_camangle_by_ha_dec = pConfig->Profile.GetInt("/correct_camangle_by_ha_dec", 0);
+
+	double hour_angle_rad = 0;
+	double dec_angle_rad = 0;
+
+//	if (correct_camangle_by_ha) {
+		hour_angle_rad = radians(hour_angle);
+//	}
+
+//	if (correct_camangle_by_ha_dec) {
+//		dec_angle_rad = radians(dec_angle);
+//	}
+
+	m_rotateCompDelta = m_rotateCompDelta - (hour_angle_rad + dec_angle_rad);
+
+	std::cout << "# " << m_rotateCompDelta << std::endl;
+
+//    m_cal.xAngle = ang;
+
+	wxString prefix = "/" + GetMountClassName() + "/calibration/";
+
+    pConfig->Profile.SetDouble(prefix + "xAngle", m_cal.xAngle);
 }
 
 static wxString RotAngleStr(double rotAngle)
@@ -1261,6 +1290,8 @@ void Mount::SetCalibration(const Calibration& cal)
         GetMountClassName(), degrees(cal.xAngle), degrees(cal.yAngle), cal.xRate * 1000.0, cal.yRate * 1000.0, cal.binning,
         DeclinationStr(cal.declination), cal.pierSide, ParityStr(cal.raGuideParity), ParityStr(cal.decGuideParity),
         RotAngleStr(cal.rotatorAngle)));
+
+    m_rotateCompDelta = 0;
 
     // we do the rates first, since they just get stored
     m_cal.xRate = cal.xRate;
