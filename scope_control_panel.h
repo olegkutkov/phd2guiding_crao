@@ -44,8 +44,6 @@ public:
     void OnPaint(wxPaintEvent& evt);
     void SetState(bool is_active);
 
-	void OnButton(wxCommandEvent& evt);
-
 	void KeyNorthDown();
 	void KeyNorthUp();
 
@@ -58,16 +56,21 @@ public:
 	void KeyEastDown();
 	void KeyEastUp();
 
-	void SetMountConnected(bool state);
+	void SetMountConnected(bool connected);
 
 private:
     bool visible;
 	bool mount_connected;
+	bool ha_enabled;
 
 	wxBitmapButton* northButton;
 	wxBitmapButton* southButton;
 	wxBitmapButton* westButton;
 	wxBitmapButton* eastButton;
+
+	void OnStartStopButton(wxCommandEvent& evt);
+	void OnCalibrateButton(wxCommandEvent& evt);
+	void OnSpeedEditButton(wxCommandEvent& evt);
 
 	void OnNorthDown(wxCommandEvent &event);
 	void OnNorthUp(wxCommandEvent &event);
