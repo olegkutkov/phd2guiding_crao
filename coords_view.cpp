@@ -108,7 +108,7 @@ void CoordsView::OnPaint(wxPaintEvent& WXUNUSED(evt))
 
 	dc.SetTextForeground(*wxWHITE);
 
-	if (curr_ha == 0) {
+	if (curr_ra == 0) {
 		largeFont = smallFont.Scaled(2);
 		dc.SetFont(largeFont);
 		dc.DrawText("Data is not available", 10, 5);
