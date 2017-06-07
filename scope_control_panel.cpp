@@ -299,9 +299,9 @@ void ScopeControlPanel::OnPaint(wxPaintEvent& WXUNUSED(evt))
 	
 	dc.SetTextForeground(*wxWHITE);
 
-	dc.DrawText("Camera angle: ", 5, 231);
+	dc.DrawText("Camera angle: ", 5, 235);
 
-	dc.DrawText(wxString::Format(wxT("%.2f deg"), cam_deg), 100, 231);
+	dc.DrawText(wxString::Format(wxT("%.2f deg"), cam_deg), 130, 235);
 }
 
 
