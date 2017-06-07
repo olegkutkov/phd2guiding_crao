@@ -1188,6 +1188,7 @@ void GearDialog::OnButtonConnectScope(wxCommandEvent& event)
             }
 
             pFrame->StatusMsg(_("Mount Connected"));
+			pFrame->pScopeControlPanel->SetMountConnected(true);
             pFrame->UpdateStateLabels();
         }
         else
@@ -1257,6 +1258,7 @@ void GearDialog::OnButtonDisconnectScope(wxCommandEvent& event)
 
         m_pScope->Disconnect();
         pFrame->StatusMsg(_("Mount Disconnected"));
+		pFrame->pScopeControlPanel->SetMountConnected(false);
         pFrame->UpdateStateLabels();
 
         if (pFrame->pManualGuide)
