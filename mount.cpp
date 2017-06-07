@@ -695,11 +695,15 @@ void Mount::UpdatexAngle(double hour_angle, double dec_angle)
 //		dec_angle_rad = radians(dec_angle);
 //	}
 
-	m_rotateCompDelta = m_rotateCompDelta - (hour_angle_rad + dec_angle_rad);
+	m_rotateCompDelta = (hour_angle_rad + dec_angle_rad) - m_rotateCompDelta;
 
 	std::cout << "# " << m_rotateCompDelta << std::endl;
 
-//    m_cal.xAngle = ang;
+    m_cal.xAngle += m_rotateCompDelta;
+
+//	m_rotateCompDelta = m_cal.xAngle;
+
+//	m_cal.xAngle += ((hour_angle_rad + dec_angle_rad) - m_rotateCompDelta);
 
 	wxString prefix = "/" + GetMountClassName() + "/calibration/";
 
