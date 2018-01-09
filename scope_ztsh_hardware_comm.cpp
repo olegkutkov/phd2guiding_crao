@@ -183,12 +183,23 @@ bool ZtshHwComm::SetHourAxisSpeed(const int speed)
 {
 	modbus_set_slave(ctx, inv_ra_addr);
 
-	if (modbus_write_register(ctx, RA_INVERTER_HZ_REG, speed) == -1) {
-		last_error = std::string("Failed to communicate with RA axis inverter, error:\n") + modbus_strerror(errno);
-		return false;
+	bool success;
+
+	for (int i = 0; i < 5; ++i) {
+		success = true;
+
+		if (modbus_write_register(ctx, RA_INVERTER_HZ_REG, speed) == -1) {
+			last_error = std::string("Failed to communicate with RA axis inverter, error:\n") + modbus_strerror(errno);
+
+			mySleep(150);
+
+			success = false;
+		} else {
+			break;
+		}
 	}
 
-	return true;
+	return success;
 }
 
 bool ZtshHwComm::SetDecAxisSpeed(const uint16_t direction, const uint16_t speed)
@@ -242,12 +253,23 @@ bool ZtshHwComm::DecAxisCmd(const uint16_t direction, const uint16_t speed)
 	dex_inverter_data[0] = direction;
 	dex_inverter_data[1] = speed;
 
-	if (modbus_write_registers(ctx, DEC_INVERTER_ROTATION_REG, DEC_INVERTER_DATA_LEN, dex_inverter_data) == -1) {
-		last_error = std::string("Failed to communicate with DEC axis inverter, error:\n") + modbus_strerror(errno);
-		return false;
+	bool success;
+
+	for (int i = 0; i < 5; ++i) {
+		success = true;
+
+		if (modbus_write_registers(ctx, DEC_INVERTER_ROTATION_REG, DEC_INVERTER_DATA_LEN, dex_inverter_data) == -1) {
+			last_error = std::string("Failed to communicate with DEC axis inverter, error:\n") + modbus_strerror(errno);
+
+			mySleep(150);
+
+			success = false;
+		} else {
+			break;
+		}
 	}
 
-	return true;
+	return success;
 }
 
 std::string ZtshHwComm::GetErrorText()
