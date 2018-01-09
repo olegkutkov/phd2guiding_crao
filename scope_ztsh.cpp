@@ -459,15 +459,17 @@ bool ScopeZTSH::GetGuideRates(double *pRAGuideRate, double *pDecGuideRate)
 {
 	printf("ScopeZTSH::GetGuideRates\n");
 
-	/// TODO!!!
+	double RA_GUIDE_RATE = 15.0; // 15 arcsec/sec
+	double DEC_GUIDE_RATE = 5.0; // 5 arcsec/sec
 
-	return false;;
+	*pRAGuideRate = RA_GUIDE_RATE / 3600;  // return in deg/sec
+	*pDecGuideRate = DEC_GUIDE_RATE / 3600; // return in deg/sec
+
+	return false;
 }
 
 bool ScopeZTSH::GetCoordinates(double *ra, double *dec, double *siderealTime)
 {
-	printf("!!!!!! ScopeZTSH::GetCoordinates\n");
-
 	double ha_, ra_, dec_, ra_speed_, dec_speed_;
 	scope_pos->GetScopePosAndSpeed(ha_, ra_, dec_, ra_speed_, dec_speed_);
 
